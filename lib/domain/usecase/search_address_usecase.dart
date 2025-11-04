@@ -1,17 +1,14 @@
-import 'package:dartz/dartz.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import '/data/repository/vietmap_api_repository.dart';
 
-import '../../core/failures/failure.dart';
-import '../../core/use_case.dart';
-import '../../data/models/vietmap_autocomplete_model.dart';
-
-class SearchAddressUseCase
-    extends UseCase<List<VietmapAutocompleteModel>, String> {
+class SearchAddressUseCase extends UseCase<List<VietmapAutocompleteModelV4>,
+    VietmapAutocompleteParamsV4> {
   final VietmapApiRepository repository;
 
   SearchAddressUseCase(this.repository);
   @override
-  Future<Either<Failure, List<VietmapAutocompleteModel>>> call(String params) {
+  Future<Either<Failure, List<VietmapAutocompleteModelV4>>> call(
+      VietmapAutocompleteParamsV4 params) {
     return repository.searchLocation(params);
   }
 }

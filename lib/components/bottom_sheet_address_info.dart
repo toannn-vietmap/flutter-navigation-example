@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 import '../constants/colors.dart';
-import '../data/models/vietmap_reverse_model.dart';
 
 class AddressInfo extends StatelessWidget {
-  final VietmapReverseModel data;
+  final VietmapReverseModelV4 data;
   final VoidCallback buildRoute;
   final VoidCallback buildAndStartRoute;
   const AddressInfo(

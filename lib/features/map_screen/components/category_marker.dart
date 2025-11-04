@@ -9,7 +9,7 @@ class CategoryMarker extends StatelessWidget {
   final Color? color;
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(  
+    return GestureDetector(
       onTap: () {
         context.read<MapBloc>().add(MapEventShowPlaceDetail(model));
       },

@@ -1,18 +1,17 @@
 // ignore_for_file: overridden_fields
 
 import 'package:equatable/equatable.dart';
-import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_flutter_navigation/models/direction_route.dart';
-import 'package:vietmap_map/domain/entities/vietmap_routing_params.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/domain/entities/vietmap_routing_params_impl.dart';
 
-import '../../../data/models/vietmap_routing_model.dart';
 import '../../../di/app_context.dart';
 
 class RoutingState extends Equatable {
   final VietMapRoutingModel? routingModel;
   final List<LatLng>? listPoint;
   final DirectionRoute? directionRoute;
-  final VietMapRoutingParams? routingParams;
+  final VietMapRoutingParamsImpl? routingParams;
   const RoutingState(
       {this.routingParams,
       this.directionRoute,
@@ -27,14 +26,15 @@ class RoutingState extends Equatable {
 class RoutingStateInitial extends RoutingState {
   RoutingStateInitial()
       : super(
-            routingParams: VietMapRoutingParams(
-              vehicle: VehicleType.car,
-              apiKey: AppContext.getVietmapAPIKey() ?? '',
-              originPoint: null,
-              destinationPoint: null,
-            ),
-            routingModel: null,
-            listPoint: []);
+          routingParams: VietMapRoutingParamsImpl(
+            vehicleType: VehicleType.car,
+            apiKey: AppContext.getVietmapAPIKey() ?? '',
+            originPoint: null,
+            destinationPoint: null,
+          ),
+          routingModel: null,
+          listPoint: [],
+        );
 }
 
 class RoutingStateLoading extends RoutingState {
@@ -51,7 +51,7 @@ class RoutingStateGetDirectionSuccess extends RoutingState {
   @override
   final List<LatLng> listPoint;
   @override
-  final VietMapRoutingParams? routingParams;
+  final VietMapRoutingParamsImpl? routingParams;
   RoutingStateGetDirectionSuccess(this.state,
       {required this.response, required this.listPoint, this.routingParams})
       : super(

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:vietmap_map/domain/entities/vietmap_routing_params.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 import '../../../constants/colors.dart';
 

@@ -91,12 +91,11 @@ class _MapScreenState extends State<MapScreen> {
               width: 120,
               height: 70,
               alignment: Alignment.bottomCenter,
-              latLng: LatLng(e.lat ?? 0, e.lng ?? 0),
+              latLng: LatLng(e.lat?.toDouble() ?? 0, e.lng?.toDouble() ?? 0),
               child: CategoryMarker(model: e))));
           setState(() {});
         }
         if (state is MapStateChangeMapTilesSuccess) {
-
           print(
               "Change map tiles to ${state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? "")}");
           tileMap =

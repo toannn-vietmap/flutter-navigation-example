@@ -75,6 +75,7 @@ abstract class VietmapAutomotivePlatformInterface extends PlatformInterface {
   Future<void> recenter() {
     throw UnimplementedError('recenter() has not been implemented.');
   }
+
   Future<void> overview() {
     throw UnimplementedError('overview() has not been implemented.');
   }

@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 import '../../../data/models/vietmap_autocomplete_model.dart';
 import '../../../data/models/vietmap_place_model.dart';
 import '../../../data/models/vietmap_reverse_model.dart';
-import '../../../data/models/vietmap_routing_model.dart';
 import '../components/select_map_tiles_modal.dart';
 
 class MapState extends Equatable {
@@ -40,7 +40,7 @@ class MapStateSearchAddressError extends MapState {
 }
 
 class MapStateGetPlaceDetailSuccess extends MapState {
-  final VietmapPlaceModel response;
+  final VietmapPlaceModelImpl response;
   final MapState state;
 
   MapStateGetPlaceDetailSuccess(this.response, this.state)
@@ -70,7 +70,7 @@ class MapStateGetDirectionError extends MapState {
 }
 
 class MapStateGetLocationFromCoordinateSuccess extends MapState {
-  final VietmapReverseModel response;
+  final VietmapReverseModelV4 response;
   final MapState state;
   MapStateGetLocationFromCoordinateSuccess(this.response, this.state)
       : super(mapTile: state.mapTile);

@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_map/constants/colors.dart';
 import 'package:vietmap_map/features/pick_address_screen/pick_address_screen.dart';
 import 'package:vietmap_map/features/routing_screen/routing_screen.dart';
@@ -18,7 +19,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await dotenv.load(fileName: ".env");
-  } catch (e) {}
+    Vietmap.getInstance(dotenv.env['VIETMAP_API_KEY'] ?? '');
+  } catch (e) {
+    debugPrint('Error loading .env file: $e');
+  }
   try {
     final appDocumentDirectory = await getApplicationDocumentsDirectory();
     Hive.init(appDocumentDirectory.path);

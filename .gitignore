@@ -45,7 +45,6 @@ vm_deploy
 vm_deploy.pub
 
 # Flutter Version Management
-.fvmrc
 
 # Symbolication related
 app.*.symbols
@@ -57,3 +56,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# FVM Version Cache
+.fvm/

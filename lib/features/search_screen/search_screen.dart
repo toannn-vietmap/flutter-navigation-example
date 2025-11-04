@@ -101,7 +101,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       onChanged: (value) {
                         if (value.isNotEmpty && value.length >= 2) {
                           // _vietMapAutomotivePlugin.queryTextUpdated(
-                              // query: value);
+                          // query: value);
                           _debounce.run(() {
                             context
                                 .read<MapBloc>()

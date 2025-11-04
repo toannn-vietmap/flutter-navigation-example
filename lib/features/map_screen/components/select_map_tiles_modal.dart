@@ -13,7 +13,6 @@ enum MapTiles {
 
   final String value;
   const MapTiles(this.value);
-  
 }
 
 class SelectMapTilesModal extends StatefulWidget {
