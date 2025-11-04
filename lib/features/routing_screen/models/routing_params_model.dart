@@ -1,4 +1,4 @@
-import 'package:vietmap_map/domain/entities/vietmap_model.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 class RoutingParamsModel extends VietmapModel {
   final bool isStartNavigation;

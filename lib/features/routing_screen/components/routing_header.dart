@@ -91,9 +91,8 @@ class RoutingHeader extends StatelessWidget {
                           currentVehicleType:
                               state.routingParams?.vehicle ?? VehicleType.car,
                           onPressed: () {
-                            context
-                                .read<RoutingBloc>()
-                                .add(RoutingEventUpdateRouteParams(vehicleType: e));
+                            context.read<RoutingBloc>().add(
+                                RoutingEventUpdateRouteParams(vehicleType: e));
                           })))),
             );
           }),

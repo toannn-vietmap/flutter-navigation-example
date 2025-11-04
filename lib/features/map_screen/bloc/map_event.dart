@@ -1,7 +1,5 @@
-import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
-import 'package:vietmap_map/data/models/vietmap_autocomplete_model.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
-import '../../../data/models/vietmap_reverse_model.dart';
 import '../components/select_map_tiles_modal.dart';
 
 class MapEvent {}
@@ -12,7 +10,7 @@ class MapEventSearchAddress extends MapEvent {
 }
 
 class MapEventGetDetailAddress extends MapEvent {
-  final VietmapAutocompleteModel model;
+  final VietmapAutocompleteModelV4 model;
 
   MapEventGetDetailAddress(this.model);
 }
@@ -51,11 +49,16 @@ class MapEventGetHistorySearch extends MapEvent {}
 class MapEventGetAddressFromCategory extends MapEvent {
   final int categoryCode;
   final LatLng? latLng;
-  MapEventGetAddressFromCategory({this.latLng, required this.categoryCode});
+  final String? name;
+  MapEventGetAddressFromCategory({
+    this.latLng,
+    required this.categoryCode,
+    this.name,
+  });
 }
 
 class MapEventShowPlaceDetail extends MapEvent {
-  final VietmapReverseModel model;
+  final VietmapPlaceModel model;
 
   MapEventShowPlaceDetail(this.model);
 }
@@ -80,6 +83,4 @@ class MapEventChangeMapTiles extends MapEvent {
   MapEventChangeMapTiles(this.mapType);
 }
 
-class MapEventReceiveCreateRoute extends MapEvent {
-  
-}
+class MapEventReceiveCreateRoute extends MapEvent {}

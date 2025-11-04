@@ -2,19 +2,19 @@ import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 class VietmapPlaceModelImpl extends VietmapPlaceModel {
   VietmapPlaceModelImpl({
-    String? display,
-    String? name,
-    double? lat,
-    double? lng,
-    String? address,
-    String? hsNum,
-    String? street,
-    int? cityId,
-    String? city,
-    int? districtId,
-    String? district,
-    int? wardId,
-    String? ward,
+    super.display,
+    super.name,
+    super.lat,
+    super.lng,
+    super.address,
+    super.hsNum,
+    super.street,
+    super.cityId,
+    super.city,
+    super.districtId,
+    super.district,
+    super.wardId,
+    super.ward,
   });
 
   VietmapPlaceModelImpl.fromJson(Map<String, dynamic> json) {

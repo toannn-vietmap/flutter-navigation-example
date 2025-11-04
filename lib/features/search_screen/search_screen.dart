@@ -161,7 +161,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: ListView.builder(
                           itemCount: state.response.length,
                           itemBuilder: (_, index) {
-                            if (state.response[index].entryPoint?.isNotEmpty ??
+                            if (state.response[index].entryPoints?.isNotEmpty ??
                                 false) {
                               return ItemWithEntryPoints(
                                 model: state.response[index],

@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +8,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 import 'package:talker/talker.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
-import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
 import 'package:vietmap_map/extension/tilemap_extension.dart';
 import 'package:vietmap_map/features/map_screen/components/category_marker.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
@@ -91,12 +91,12 @@ class _MapScreenState extends State<MapScreen> {
               width: 120,
               height: 70,
               alignment: Alignment.bottomCenter,
-              latLng: LatLng(e.lat?.toDouble() ?? 0, e.lng?.toDouble() ?? 0),
-              child: CategoryMarker(model: e))));
+              latLng: LatLng(e?.lat?.toDouble() ?? 0, e?.lng?.toDouble() ?? 0),
+              child: CategoryMarker(model: e!))));
           setState(() {});
         }
         if (state is MapStateChangeMapTilesSuccess) {
-          print(
+          debugPrint(
               "Change map tiles to ${state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? "")}");
           tileMap =
               state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? "");
@@ -111,22 +111,23 @@ class _MapScreenState extends State<MapScreen> {
                 width: 120,
                 height: 70,
                 alignment: Alignment.bottomCenter,
-                latLng:
-                    LatLng(state.response.lat ?? 0, state.response.lng ?? 0),
+                latLng: LatLng(state.response.lat?.toDouble() ?? 0,
+                    state.response.lng?.toDouble() ?? 0),
                 child: InkWell(
                   onTap: () {
                     _panelController.show();
                     _showPanel();
                   },
                   child: CategoryMarker(
-                    model: state.response,
+                    model: state.response.toVietmapPlaceModel(),
                     color: Colors.red,
                   ),
                 )),
           ];
           _controller?.animateCamera(
             CameraUpdate.newLatLngZoom(
-                LatLng(state.response.lat ?? 0, state.response.lng ?? 0),
+                LatLng(state.response.lat?.toDouble() ?? 0,
+                    state.response.lng?.toDouble() ?? 0),
                 _controller?.cameraPosition?.zoom ?? 15),
           );
           _panelController.show();
@@ -139,8 +140,8 @@ class _MapScreenState extends State<MapScreen> {
                 width: 40,
                 height: 40,
                 alignment: Alignment.bottomCenter,
-                latLng:
-                    LatLng(state.response.lat ?? 0, state.response.lng ?? 0),
+                latLng: LatLng(state.response.lat?.toDouble() ?? 0,
+                    state.response.lng?.toDouble() ?? 0),
                 child: InkWell(
                   onTap: () {
                     _panelController.show();
@@ -152,7 +153,8 @@ class _MapScreenState extends State<MapScreen> {
           ];
           _controller?.animateCamera(
             CameraUpdate.newLatLngZoom(
-                LatLng(state.response.lat ?? 0, state.response.lng ?? 0),
+                LatLng(state.response.lat?.toDouble() ?? 0,
+                    state.response.lng?.toDouble() ?? 0),
                 _controller?.cameraPosition?.zoom ?? 15),
           );
           _panelController.show();

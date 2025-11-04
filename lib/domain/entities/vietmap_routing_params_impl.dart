@@ -24,7 +24,7 @@ class VietMapRoutingParamsImpl extends VietMapRoutingParams {
     bool optimize = false,
     this.waypoints,
   }) : super(
-          points: waypoints ?? [originPoint!, destinationPoint!],
+          points: waypoints ?? [],
           vehicle: vehicleType,
           optimize: optimize,
         );

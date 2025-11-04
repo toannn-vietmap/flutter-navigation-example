@@ -1,10 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/data/models/vietmap_reverse_model.dart';
 
-import '../../../data/models/vietmap_autocomplete_model.dart';
-import '../../../data/models/vietmap_place_model.dart';
-import '../../../data/models/vietmap_reverse_model.dart';
 import '../components/select_map_tiles_modal.dart';
 
 class MapState extends Equatable {
@@ -26,7 +23,7 @@ class MapStateLoading extends MapState {
 }
 
 class MapStateSearchAddressSuccess extends MapState {
-  final List<VietmapAutocompleteModel> response;
+  final List<VietmapAutocompleteModelV4> response;
   final MapState state;
   MapStateSearchAddressSuccess(this.response, this.state)
       : super(mapTile: state.mapTile);
@@ -40,7 +37,7 @@ class MapStateSearchAddressError extends MapState {
 }
 
 class MapStateGetPlaceDetailSuccess extends MapState {
-  final VietmapPlaceModelImpl response;
+  final VietmapPlaceModel response;
   final MapState state;
 
   MapStateGetPlaceDetailSuccess(this.response, this.state)
@@ -70,7 +67,7 @@ class MapStateGetDirectionError extends MapState {
 }
 
 class MapStateGetLocationFromCoordinateSuccess extends MapState {
-  final VietmapReverseModelV4 response;
+  final VietmapReverseModelV4Impl response;
   final MapState state;
   MapStateGetLocationFromCoordinateSuccess(this.response, this.state)
       : super(mapTile: state.mapTile);
@@ -85,7 +82,7 @@ class MapStateGetLocationFromCoordinateError extends MapState {
 }
 
 class MapStateGetHistorySearchSuccess extends MapState {
-  final List<VietmapAutocompleteModel> response;
+  final List<VietmapAutocompleteModelV4> response;
   final MapState state;
   MapStateGetHistorySearchSuccess(this.response, this.state)
       : super(mapTile: state.mapTile);
@@ -99,7 +96,7 @@ class MapStateGetHistorySearchError extends MapState {
 }
 
 class MapStateGetCategoryAddressSuccess extends MapState {
-  final List<VietmapReverseModel> response;
+  final List<VietmapPlaceModel?> response;
   final MapState state;
   MapStateGetCategoryAddressSuccess(this.response, this.state)
       : super(mapTile: state.mapTile);
