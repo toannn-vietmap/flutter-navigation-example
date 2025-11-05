@@ -5,15 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_map/constants/colors.dart';
-import 'package:vietmap_map/di/navigation_observer.dart';
-import 'package:vietmap_map/features/pick_address_screen/pick_address_screen.dart';
-import 'package:vietmap_map/features/routing_screen/routing_screen.dart';
-import 'package:vietmap_map/features/routing_screen/search_address.dart';
-import 'package:vietmap_map/features/search_screen/search_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'constants/route.dart';
 import 'features/map_screen/bloc/bloc.dart';
-import 'features/map_screen/maps_screen.dart';
 import 'features/routing_screen/bloc/bloc.dart';
 
 Future<void> main() async {
@@ -38,16 +32,7 @@ Future<void> main() async {
     ],
     child: MaterialApp.router(
       title: 'VietMap Flutter GL',
-      // navigatorObservers: [AppNavigation()],
-      // routes: {
-      //   Routes.searchScreen: (context) => const SearchScreen(),
-      //   Routes.mapScreen: (context) => const MapScreen(),
-      //   Routes.routingScreen: (context) => const RoutingScreen(),
-      //   Routes.pickAddressScreen: (context) => const PickAddressScreen(),
-      //   Routes.searchAddressForRoutingScreen: (context) =>
-      //       const SearchAddress(),
-      // },
-      // initialRoute: Routes.mapScreen,
+      routerConfig: route,
       theme: ThemeData(
           useMaterial3: false,
           primarySwatch: MaterialColor(

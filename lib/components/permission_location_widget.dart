@@ -1,13 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:vietmap_map/constants/route.dart';
 
 class PermissionLocationWidget extends StatefulWidget {
   final VoidCallback? onPermissionGranted;
+  final String? pathRiderect;
 
   const PermissionLocationWidget({
     super.key,
     this.onPermissionGranted,
+    this.pathRiderect,
   });
 
   @override
@@ -34,6 +40,8 @@ class _PermissionLocationWidgetState extends State<PermissionLocationWidget> {
           permission == LocationPermission.always) {
         if (widget.onPermissionGranted != null) {
           widget.onPermissionGranted!();
+        } else {
+          context.go((widget.pathRiderect ?? Routes.mapScreen));
         }
       } else if (permission == LocationPermission.deniedForever) {
         _showOpenSettingsDialog();

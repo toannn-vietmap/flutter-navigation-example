@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 import 'package:talker/talker.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
@@ -509,7 +510,7 @@ class _MapScreenState extends State<MapScreen> {
                       FloatingActionButton(
                         heroTag: "navigation",
                         onPressed: () {
-                          Navigator.pushNamed(context, Routes.routingScreen);
+                          GoRouter.of(context).pushNamed(Routes.routingScreen);
                         },
                         child: const Icon(Icons.directions),
                       ),
