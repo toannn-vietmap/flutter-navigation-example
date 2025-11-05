@@ -5,7 +5,6 @@ import 'package:vietmap_map/features/routing_screen/models/routing_header_model.
 
 import '../../../constants/colors.dart';
 import '../../../constants/route.dart';
-import '../../../domain/entities/vietmap_routing_params_impl.dart';
 import '../bloc/bloc.dart';
 
 class RoutingHeader extends StatelessWidget {

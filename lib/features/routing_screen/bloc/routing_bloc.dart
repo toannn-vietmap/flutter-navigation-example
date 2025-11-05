@@ -70,12 +70,11 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     emit(RoutingStateLoading(state));
     VietMapRoutingParamsImpl? params = state.routingParams ??
         VietMapRoutingParamsImpl(
-          vehicleType: event.vehicleType ?? VehicleType.car,
           apiKey: AppContext.getVietmapAPIKey() ?? '',
           originPoint: null,
           destinationPoint: null,
         );
-    params.vehicleType = event.vehicleType ?? params.vehicleType;
+    params.vehicle = event.vehicleType ?? params.vehicle;
     params.destinationPoint = event.destinationPoint ?? params.destinationPoint;
     params.originPoint = event.originPoint ?? params.originPoint;
     params.originDescription =
@@ -112,11 +111,14 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
             ('${params.originPoint!.latitude}--o--${params.originPoint!.longitude}'));
         Talker().debug(
             ('${params.destinationPoint!.latitude}--d--${params.destinationPoint!.longitude}'));
-        params.navigationController!.buildRoute(waypoints: [
-          LatLng(params.originPoint!.latitude, params.originPoint!.longitude),
-          LatLng(params.destinationPoint!.latitude,
-              params.destinationPoint!.longitude)
-        ], profile: params.vehicle.convertToDrivingProfile());
+        params.navigationController!.buildRoute(
+          waypoints: [
+            LatLng(params.originPoint!.latitude, params.originPoint!.longitude),
+            LatLng(params.destinationPoint!.latitude,
+                params.destinationPoint!.longitude)
+          ],
+          profile: params.vehicle.convertToDrivingProfile(),
+        );
       }
     }
   }

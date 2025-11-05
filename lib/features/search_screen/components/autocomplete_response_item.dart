@@ -24,7 +24,19 @@ class AutocompleteResponseItem extends StatelessWidget {
               title: Text(model.name ?? ''),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [Text(model.address ?? ''), const Divider()],
+                children: [
+                  Text(model.address ?? ''),
+                  model.dataNew != null
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5.0),
+                          child: Text(
+                            'Mới: ${model.dataNew!.address}',
+                            style: const TextStyle(color: Colors.blue),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                  const Divider()
+                ],
               ),
             ),
           ),

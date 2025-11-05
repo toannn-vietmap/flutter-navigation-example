@@ -110,7 +110,7 @@ class BottomSheetInfo extends StatelessWidget {
         }
         if (state is MapStateGetLocationFromCoordinateSuccess) {
           return Container(
-            height: 200,
+            height: 250,
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 15),
             padding: const EdgeInsets.only(bottom: 10),

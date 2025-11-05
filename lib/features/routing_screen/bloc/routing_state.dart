@@ -27,7 +27,7 @@ class RoutingStateInitial extends RoutingState {
   RoutingStateInitial()
       : super(
           routingParams: VietMapRoutingParamsImpl(
-            vehicleType: VehicleType.car,
+            vehicle: VehicleType.car,
             apiKey: AppContext.getVietmapAPIKey() ?? '',
             originPoint: null,
             destinationPoint: null,

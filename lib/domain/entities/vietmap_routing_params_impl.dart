@@ -8,7 +8,6 @@ class VietMapRoutingParamsImpl extends VietMapRoutingParams {
   String? originDescription;
   String? destinationDescription;
   LatLng? destinationPoint;
-  VehicleType vehicleType;
   MapNavigationViewController? navigationController;
   List<LatLng>? waypoints;
 
@@ -19,14 +18,12 @@ class VietMapRoutingParamsImpl extends VietMapRoutingParams {
     this.destinationDescription,
     required this.originPoint,
     required this.destinationPoint,
-    this.vehicleType = VehicleType.car,
+    super.vehicle,
     this.apiVersion = '1.1',
-    bool optimize = false,
+    super.optimize,
     this.waypoints,
   }) : super(
           points: waypoints ?? [],
-          vehicle: vehicleType,
-          optimize: optimize,
         );
 
   @override

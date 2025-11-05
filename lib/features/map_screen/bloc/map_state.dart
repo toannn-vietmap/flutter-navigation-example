@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
-import 'package:vietmap_map/data/models/vietmap_reverse_model.dart';
+import 'package:vietmap_map/data/models/vietmap_reverse_model_v4_impl.dart';
 
 import '../components/select_map_tiles_modal.dart';
 

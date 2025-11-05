@@ -42,6 +42,17 @@ class RecentSearchWidget extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(state.response[index].address ?? ''),
+                                state.response[index].dataNew != null
+                                    ? Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5.0),
+                                        child: Text(
+                                          'Mới: ${state.response[index].dataNew!.display}',
+                                          style: const TextStyle(
+                                              color: Colors.blue),
+                                        ),
+                                      )
+                                    : const SizedBox.shrink(),
                                 const Divider()
                               ],
                             ),

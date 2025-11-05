@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:vietmap_map/data/models/vietmap_reverse_model.dart';
+import 'package:vietmap_map/data/models/vietmap_reverse_model_v4_impl.dart';
 
 import 'package:vietmap_map/domain/repository/history_search_repositories.dart';
 import 'package:vietmap_map/domain/usecase/add_history_search_usecase.dart';
@@ -248,6 +248,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     var response = await Vietmap.geoCodeV4(
       VietmapAutocompleteParamsV4(
         text: event.address,
+        displayType: AutocompleteDisplayEnum.bothOldAndNew,
       ),
     );
     EasyLoading.dismiss();
