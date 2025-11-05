@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:vietmap_map/data/models/vietmap_reverse_model.dart';
@@ -108,12 +110,12 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         focusLocation: event.latLng,
       ),
     );
-
-    response.fold((l) => emit(MapStateSearchAddressError('Error', state)),
-        (r) async {
-      var places = await _getPlaceDetail(r);
-      emit(MapStateGetCategoryAddressSuccess(places, state));
+    var places = <VietmapAutocompleteModelV4>[];
+    response.fold((l) => emit(MapStateSearchAddressError('Error', state)), (r) {
+      places = r;
     });
+    var placeDetails = await _getPlaceDetail(places);
+    emit(MapStateGetCategoryAddressSuccess(placeDetails, state));
     EasyLoading.dismiss();
   }
 

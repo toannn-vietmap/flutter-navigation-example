@@ -11,8 +11,6 @@ import 'package:vietmap_map/features/routing_screen/bloc/routing_state.dart';
 
 import '../../../di/app_context.dart';
 import '../../../domain/entities/vietmap_routing_params_impl.dart';
-import '../../../domain/repository/vietmap_api_repositories.dart';
-import '../../../domain/usecase/get_direction_usecase.dart';
 
 class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
   final talker = Talker();
@@ -86,6 +84,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
         event.destinationDescription ?? params.destinationDescription;
     params.navigationController =
         event.navigationController ?? params.navigationController;
+
     try {
       if (params.originPoint == null) {
         params.originDescription = 'Vị trí của bạn';
@@ -95,6 +94,11 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       talker.handle(e.toString());
     }
     if (params.originPoint != null && params.destinationPoint != null) {
+      params.points = [
+        params.originPoint!,
+        ...state.routingParams?.waypoints ?? [],
+        params.destinationPoint!
+      ];
       emit(RoutingState(
           listPoint: <LatLng>[...(state.listPoint ?? [])],
           routingModel: VietMapRoutingModel.copyWith(state.routingModel),
@@ -131,8 +135,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     routingParams.originPoint = event.from;
     routingParams.destinationPoint = event.to;
     EasyLoading.show();
-    var response =
-        await GetDirectionUseCase(VietmapApiRepositories()).call(routingParams);
+    var response = await Vietmap.routing(routingParams);
     EasyLoading.dismiss();
     response.fold(
         (l) => RoutingStateGetDirectionError(message: 'Error', state: state),
