@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
-import '../../../data/models/vietmap_reverse_model.dart';
 import '../bloc/bloc.dart';
 
 class CategoryMarker extends StatelessWidget {
-  const CategoryMarker({super.key, required this.model, this.color});
-  final VietmapReverseModel model;
+  const CategoryMarker({
+    super.key,
+    required this.model,
+    this.color,
+  });
+  final VietmapPlaceModel model;
   final Color? color;
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(  
+    return GestureDetector(
       onTap: () {
         context.read<MapBloc>().add(MapEventShowPlaceDetail(model));
       },

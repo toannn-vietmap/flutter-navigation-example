@@ -1,25 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:vietmap_map/data/models/vietmap_marker_model.dart';
-// import 'package:geolocator/geolocator.dart';
+import 'package:vietmap_map/data/models/vietmap_reverse_model_v4_impl.dart';
 
-import 'package:vietmap_map/data/models/vietmap_reverse_model.dart';
 import 'package:vietmap_map/domain/repository/history_search_repositories.dart';
-import 'package:vietmap_map/domain/repository/vietmap_api_repositories.dart';
-import 'package:vietmap_map/domain/usecase/search_address_usecase.dart';
+import 'package:vietmap_map/domain/usecase/add_history_search_usecase.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
-import '../../../core/no_params.dart';
-import '../../../di/app_context.dart';
-import '../../../domain/entities/vietmap_routing_params.dart';
-import '../../../domain/usecase/add_history_search_usecase.dart';
-import '../../../domain/usecase/get_direction_usecase.dart';
 import '../../../domain/usecase/get_history_search_usecase.dart';
-import '../../../domain/usecase/get_location_from_latlng_usecase.dart';
-import '../../../domain/usecase/get_place_detail_usecase.dart';
-import '../../../domain/usecase/get_point_from_category_usecase.dart';
 import 'map_event.dart';
 import 'map_state.dart';
 import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 class MapBloc extends Bloc<MapEvent, MapState> {
   final VietMapAutomotivePlugin _vietMapAutomotivePlugin =
@@ -50,7 +42,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   _onMapEventUserClickOnMapPoint(
       MapEventUserClickOnMapPoint event, Emitter<MapState> emit) async {
     emit(MapStateLoading(state));
-    num? distanceToLocation;
+    // num? distanceToLocation;
 
     await Future.wait(
       [
@@ -77,12 +69,12 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         //   )
       ],
     );
-    VietmapReverseModel r = VietmapReverseModel(
+    VietmapReverseModelV4Impl r = VietmapReverseModelV4Impl(
       lat: event.coordinate.latitude,
       lng: event.coordinate.longitude,
       address: event.placeName,
       name: event.placeShortName,
-      distanceFromCurrentLocation: distanceToLocation,
+      // distanceFromCurrentLocation: distanceToLocation?.toDouble() ?? 0.0,
     );
     emit(MapStateGetLocationFromCoordinateSuccess(r, state));
   }
@@ -90,7 +82,13 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   _onMapEventShowPlaceDetail(
       MapEventShowPlaceDetail event, Emitter<MapState> emit) async {
     emit(MapStateLoading(state));
-    emit(MapStateGetLocationFromCoordinateSuccess(event.model, state));
+    var reverseModel = VietmapReverseModelV4Impl(
+      lat: event.model.lat ?? 0,
+      lng: event.model.lng ?? 0,
+      address: event.model.address ?? '',
+      name: event.model.name ?? '',
+    );
+    emit(MapStateGetLocationFromCoordinateSuccess(reverseModel, state));
   }
 
   _onMapEventGetAddressFromCategory(
@@ -98,15 +96,43 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     emit(MapStateLoading(state));
     EasyLoading.show();
 
-    var response =
-        await GetLocationFromCategoryUseCase(VietmapApiRepositories()).call(
-            LocationPoint(
-                lat: event.latLng?.latitude ?? 0,
-                long: event.latLng?.longitude ?? 0,
-                category: event.categoryCode));
+    // var response =
+    //     await GetLocationFromCategoryUseCase(VietmapApiRepositories()).call(
+    //         LocationPoint(
+    //             lat: event.latLng?.latitude ?? 0,
+    //             long: event.latLng?.longitude ?? 0,
+    //             category: event.categoryCode));
+    var response = await Vietmap.autocompleteV4(
+      VietmapAutocompleteParamsV4(
+        text: event.name ?? '',
+        circleRadius: 5000,
+        cats: '${[event.categoryCode]}',
+        focusLocation: event.latLng,
+      ),
+    );
+    var places = <VietmapAutocompleteModelV4>[];
+    response.fold((l) => emit(MapStateSearchAddressError('Error', state)), (r) {
+      places = r;
+    });
+    var placeDetails = await _getPlaceDetail(places);
+    emit(MapStateGetCategoryAddressSuccess(placeDetails, state));
     EasyLoading.dismiss();
-    response.fold((l) => emit(MapStateSearchAddressError('Error', state)),
-        (r) => emit(MapStateGetCategoryAddressSuccess(r, state)));
+  }
+
+  Future<List<VietmapPlaceModel?>> _getPlaceDetail(
+      List<VietmapAutocompleteModelV4> places) async {
+    final result = await Future.wait(
+      places.map((e) async {
+        try {
+          var detailResponse = await Vietmap.placeV4(e.refId!);
+          return detailResponse.fold((error) => null, (place) => place);
+        } catch (ex) {
+          return null;
+        }
+      }),
+    );
+
+    return result.whereType<VietmapPlaceModel>().toList();
   }
 
   _onMapEventGetHistorySearch(
@@ -129,14 +155,14 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       MapEventGetAddressFromCoordinate event, Emitter<MapState> emit) async {
     emit(MapStateLoading(state));
     EasyLoading.show();
-    var response = await GetLocationFromLatLngUseCase(VietmapApiRepositories())
-        .call(LocationPoint(
-            lat: event.coordinate.latitude, long: event.coordinate.longitude));
+    var response = await Vietmap.reverseV4(VietmapReverseParams(
+        latLng: LatLng(event.coordinate.latitude, event.coordinate.longitude)));
     EasyLoading.dismiss();
     response.fold(
         (l) => emit(MapStateGetLocationFromCoordinateError('Error', state)),
         (r) async {
-      emit(MapStateGetLocationFromCoordinateSuccess(r, state));
+      var reverseModel = VietmapReverseModelV4Impl.fromVietmapReverseModelV4(r);
+      emit(MapStateGetLocationFromCoordinateSuccess(reverseModel, state));
 
       // await _vietMapAutomotivePlugin.addMarkers(
       //   markers: [
@@ -155,11 +181,9 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       MapEventGetDirection event, Emitter<MapState> emit) async {
     emit(MapStateLoading(state));
     EasyLoading.show();
-    var response = await GetDirectionUseCase(VietmapApiRepositories()).call(
-        VietMapRoutingParams(
-            originPoint: event.from,
-            destinationPoint: event.to,
-            apiKey: AppContext.getVietmapAPIKey() ?? ''));
+    var response = await Vietmap.routing(VietMapRoutingParams(
+      points: [event.from, event.to],
+    ));
     response.fold((l) => MapStateGetDirectionError('Error', state), (r) {
       var locs = VietmapPolylineDecoder.decodePolyline(r.paths!.first.points!)
           .map((e) {
@@ -174,8 +198,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       MapEventGetEntryPointDetailAddress event, Emitter<MapState> emit) async {
     emit(MapStateLoading(state));
     EasyLoading.show();
-    var response =
-        await GetPlaceDetailUseCase(VietmapApiRepositories()).call(event.refId);
+    var response = await Vietmap.placeV4(event.refId);
     EasyLoading.dismiss();
     response.fold((l) => emit(MapStateGetPlaceDetailError('Error', state)),
         (r) {
@@ -191,13 +214,9 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     var response;
     await Future.wait(
       [
-        GetPlaceDetailUseCase(VietmapApiRepositories())
-            .call(event.model.refId ?? '')
-            .then(
-          (value) {
-            response = value;
-          },
-        ),
+        Vietmap.placeV4(event.model.refId!).then((value) {
+          response = value;
+        }),
         // _vietMapAutomotivePlugin.selectSearchResult(
         //   refId: event.model.refId ?? '',
         // ),
@@ -214,8 +233,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       MapEventGetDetailAddressById event, Emitter<MapState> emit) async {
     emit(MapStateLoading(state));
     EasyLoading.show();
-    var response =
-        await GetPlaceDetailUseCase(VietmapApiRepositories()).call(event.refId);
+    var response = await Vietmap.placeV4(event.refId);
     EasyLoading.dismiss();
     response.fold((l) => emit(MapStateGetPlaceDetailError('Error', state)),
         (r) {
@@ -227,8 +245,12 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       MapEventSearchAddress event, Emitter<MapState> emit) async {
     emit(MapStateLoading(state));
     EasyLoading.show();
-    var response = await SearchAddressUseCase(VietmapApiRepositories())
-        .call(event.address);
+    var response = await Vietmap.geoCodeV4(
+      VietmapAutocompleteParamsV4(
+        text: event.address,
+        displayType: AutocompleteDisplayEnum.bothOldAndNew,
+      ),
+    );
     EasyLoading.dismiss();
     response.fold((l) => emit(MapStateSearchAddressError('Error', state)),
         (r) => emit(MapStateSearchAddressSuccess(r, state)));

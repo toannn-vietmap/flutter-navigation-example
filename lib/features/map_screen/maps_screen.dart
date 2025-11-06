@@ -4,10 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 import 'package:talker/talker.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
-import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
+import 'package:vietmap_map/extension/color_extension.dart';
 import 'package:vietmap_map/extension/tilemap_extension.dart';
 import 'package:vietmap_map/features/map_screen/components/category_marker.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
@@ -62,7 +63,7 @@ class _MapScreenState extends State<MapScreen> {
         ..backgroundColor = Colors.white
         ..indicatorColor = vietmapColor
         ..textColor = vietmapColor
-        ..maskColor = Colors.grey.withOpacity(0.2)
+        ..maskColor = Colors.grey.withOpacityValue(0.2)
         ..userInteractions = true
         ..dismissOnTap = false;
       Future.delayed(const Duration(milliseconds: 200)).then((value) {
@@ -91,13 +92,12 @@ class _MapScreenState extends State<MapScreen> {
               width: 120,
               height: 70,
               alignment: Alignment.bottomCenter,
-              latLng: LatLng(e.lat ?? 0, e.lng ?? 0),
-              child: CategoryMarker(model: e))));
+              latLng: LatLng(e?.lat?.toDouble() ?? 0, e?.lng?.toDouble() ?? 0),
+              child: CategoryMarker(model: e!))));
           setState(() {});
         }
         if (state is MapStateChangeMapTilesSuccess) {
-
-          print(
+          debugPrint(
               "Change map tiles to ${state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? "")}");
           tileMap =
               state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? "");
@@ -112,22 +112,23 @@ class _MapScreenState extends State<MapScreen> {
                 width: 120,
                 height: 70,
                 alignment: Alignment.bottomCenter,
-                latLng:
-                    LatLng(state.response.lat ?? 0, state.response.lng ?? 0),
+                latLng: LatLng(state.response.lat?.toDouble() ?? 0,
+                    state.response.lng?.toDouble() ?? 0),
                 child: InkWell(
                   onTap: () {
                     _panelController.show();
                     _showPanel();
                   },
                   child: CategoryMarker(
-                    model: state.response,
+                    model: state.response.toVietmapPlaceModel(),
                     color: Colors.red,
                   ),
                 )),
           ];
           _controller?.animateCamera(
             CameraUpdate.newLatLngZoom(
-                LatLng(state.response.lat ?? 0, state.response.lng ?? 0),
+                LatLng(state.response.lat?.toDouble() ?? 0,
+                    state.response.lng?.toDouble() ?? 0),
                 _controller?.cameraPosition?.zoom ?? 15),
           );
           _panelController.show();
@@ -140,8 +141,8 @@ class _MapScreenState extends State<MapScreen> {
                 width: 40,
                 height: 40,
                 alignment: Alignment.bottomCenter,
-                latLng:
-                    LatLng(state.response.lat ?? 0, state.response.lng ?? 0),
+                latLng: LatLng(state.response.lat?.toDouble() ?? 0,
+                    state.response.lng?.toDouble() ?? 0),
                 child: InkWell(
                   onTap: () {
                     _panelController.show();
@@ -153,7 +154,8 @@ class _MapScreenState extends State<MapScreen> {
           ];
           _controller?.animateCamera(
             CameraUpdate.newLatLngZoom(
-                LatLng(state.response.lat ?? 0, state.response.lng ?? 0),
+                LatLng(state.response.lat?.toDouble() ?? 0,
+                    state.response.lng?.toDouble() ?? 0),
                 _controller?.cameraPosition?.zoom ?? 15),
           );
           _panelController.show();
@@ -228,10 +230,9 @@ class _MapScreenState extends State<MapScreen> {
                           case Events.onStartNavigation:
                             final args =
                                 Map<String, dynamic>.from(call.arguments);
-                            Navigator.pushNamed(
-                              context,
+                            context.pushNamed(
                               Routes.routingScreen,
-                              arguments: RoutingParamsModel.fromChannelReceived(
+                              extra: RoutingParamsModel.fromChannelReceived(
                                 lat: args['latitude'],
                                 lng: args['longitude'],
                                 name: args['title'],
@@ -244,10 +245,9 @@ class _MapScreenState extends State<MapScreen> {
                             final args =
                                 Map<String, dynamic>.from(call.arguments);
 
-                            Navigator.pushNamed(
-                              context,
+                            context.pushNamed(
                               Routes.routingScreen,
-                              arguments: RoutingParamsModel.fromChannelReceived(
+                              extra: RoutingParamsModel.fromChannelReceived(
                                 lat: args['latitude'],
                                 lng: args['longitude'],
                                 name: args['title'],
@@ -412,7 +412,7 @@ class _MapScreenState extends State<MapScreen> {
                           padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
+                              color: Colors.grey.withOpacityValue(0.5),
                               spreadRadius: 1,
                               blurRadius: 7,
                               offset: const Offset(
@@ -508,7 +508,7 @@ class _MapScreenState extends State<MapScreen> {
                       FloatingActionButton(
                         heroTag: "navigation",
                         onPressed: () {
-                          Navigator.pushNamed(context, Routes.routingScreen);
+                          GoRouter.of(context).pushNamed(Routes.routingScreen);
                         },
                         child: const Icon(Icons.directions),
                       ),
@@ -524,12 +524,12 @@ class _MapScreenState extends State<MapScreen> {
         .then((value) => _panelController.animatePanelToPosition(1.0));
   }
 
-  _removeRoutes() async {
-    await _mapAutomotivePlugin.removeRoutes();
-  }
+  // _removeRoutes() async {
+  //   await _mapAutomotivePlugin.removeRoutes();
+  // }
 
   _navigateToSearch() async {
-    await Navigator.pushNamed(context, Routes.searchScreen);
+    await context.pushNamed(Routes.searchScreen);
   }
 
   _clearMarker() {

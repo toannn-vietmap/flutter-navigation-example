@@ -73,7 +73,7 @@ class VietMapAutomotivePlugin {
   Future<void> recenter() async {
     await VietmapAutomotivePlatformInterface.instance.recenter();
   }
-  
+
   Future<void> overview() async {
     await VietmapAutomotivePlatformInterface.instance.overview();
   }

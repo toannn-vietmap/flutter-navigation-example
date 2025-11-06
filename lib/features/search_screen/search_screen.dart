@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vietmap_map/components/debouncer_search.dart';
 import 'package:vietmap_map/constants/events.dart';
 import 'package:vietmap_map/di/app_context.dart';
@@ -38,7 +39,7 @@ class _SearchScreenState extends State<SearchScreen> {
           switch (call.method) {
             case Events.closeSearch:
               _focusNode.unfocus();
-              Navigator.pop(context);
+              context.pop();
               break;
             case Events.queryTextUpdated:
               final query = call.arguments['query'] as String?;
@@ -58,7 +59,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     .read<MapBloc>()
                     .add(MapEventGetDetailAddressById(refId));
                 _focusNode.unfocus();
-                Navigator.pop(context);
+                context.pop();
               }
               break;
             default:
@@ -101,7 +102,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       onChanged: (value) {
                         if (value.isNotEmpty && value.length >= 2) {
                           // _vietMapAutomotivePlugin.queryTextUpdated(
-                              // query: value);
+                          // query: value);
                           _debounce.run(() {
                             context
                                 .read<MapBloc>()
@@ -123,7 +124,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           prefixIcon: InkWell(
                             onTap: () {
                               // _vietMapAutomotivePlugin.closeSearch();
-                              Navigator.pop(context);
+                              context.pop();
                             },
                             child: const Icon(
                               Icons.arrow_back_ios_rounded,
@@ -161,7 +162,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: ListView.builder(
                           itemCount: state.response.length,
                           itemBuilder: (_, index) {
-                            if (state.response[index].entryPoint?.isNotEmpty ??
+                            if (state.response[index].entryPoints?.isNotEmpty ??
                                 false) {
                               return ItemWithEntryPoints(
                                 model: state.response[index],

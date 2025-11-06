@@ -1,7 +1,6 @@
-import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/models/direction_route.dart';
-import 'package:vietmap_map/domain/entities/vietmap_routing_params.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 class RoutingEvent {}
 
@@ -16,15 +15,16 @@ class RoutingEventUpdateRouteParams extends RoutingEvent {
   final LatLng? destinationPoint;
   final String? originDescription;
   final String? destinationDescription;
-  final VehicleType? vehicle;
+  final VehicleType? vehicleType;
   final MapNavigationViewController? navigationController;
-  RoutingEventUpdateRouteParams(
-      {this.originPoint,
-      this.destinationPoint,
-      this.navigationController,
-      this.vehicle,
-      this.originDescription,
-      this.destinationDescription});
+  RoutingEventUpdateRouteParams({
+    this.originPoint,
+    this.destinationPoint,
+    this.navigationController,
+    this.vehicleType,
+    this.originDescription,
+    this.destinationDescription,
+  });
 }
 
 class RoutingEventUpdateVehicleType extends RoutingEvent {

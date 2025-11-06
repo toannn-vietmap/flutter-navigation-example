@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vietmap_map/components/map_action_button.dart';
 import 'package:vietmap_map/features/map_screen/bloc/map_bloc.dart';
 
@@ -75,8 +76,8 @@ class BottomSheetInfo extends StatelessWidget {
                         onPressed: () async {
                           onCreateRouteCallback();
                           EasyLoading.show();
-                          Navigator.pushNamed(context, Routes.routingScreen,
-                              arguments: RoutingParamsModel.fromVietmapModel(
+                          context.pushNamed(Routes.routingScreen,
+                              extra: RoutingParamsModel.fromVietmapModel(
                                   state.response, false));
                         },
                         child: const Row(
@@ -90,8 +91,8 @@ class BottomSheetInfo extends StatelessWidget {
                     MapActionButtonOutline(
                         onPressed: () {
                           onStartNavigationCallback();
-                          Navigator.pushNamed(context, Routes.routingScreen,
-                              arguments: RoutingParamsModel.fromVietmapModel(
+                          context.pushNamed(Routes.routingScreen,
+                              extra: RoutingParamsModel.fromVietmapModel(
                                   state.response, true));
                         },
                         child: const Row(
@@ -110,7 +111,7 @@ class BottomSheetInfo extends StatelessWidget {
         }
         if (state is MapStateGetLocationFromCoordinateSuccess) {
           return Container(
-            height: 200,
+            height: 250,
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 15),
             padding: const EdgeInsets.only(bottom: 10),
@@ -162,8 +163,8 @@ class BottomSheetInfo extends StatelessWidget {
                         onPressed: () async {
                           onCreateRouteCallback();
                           EasyLoading.show();
-                          Navigator.pushNamed(context, Routes.routingScreen,
-                              arguments: RoutingParamsModel.fromVietmapModel(
+                          context.pushNamed(Routes.routingScreen,
+                              extra: RoutingParamsModel.fromVietmapModel(
                                   state.response, false));
                         },
                         child: const Row(
@@ -177,8 +178,8 @@ class BottomSheetInfo extends StatelessWidget {
                     MapActionButtonOutline(
                         onPressed: () {
                           onStartNavigationCallback();
-                          Navigator.pushNamed(context, Routes.routingScreen,
-                              arguments: RoutingParamsModel.fromVietmapModel(
+                          context.pushNamed(Routes.routingScreen,
+                              extra: RoutingParamsModel.fromVietmapModel(
                                   state.response, true));
                         },
                         child: const Row(

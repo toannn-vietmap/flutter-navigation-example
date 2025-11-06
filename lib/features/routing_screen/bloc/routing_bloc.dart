@@ -2,17 +2,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:talker/talker.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
 import 'package:vietmap_map/extension/driving_profile_extension.dart';
 import 'package:vietmap_map/extension/latlng_extension.dart';
 import 'package:vietmap_map/features/routing_screen/bloc/routing_event.dart';
 import 'package:vietmap_map/features/routing_screen/bloc/routing_state.dart';
 
-import '../../../data/models/vietmap_routing_model.dart';
 import '../../../di/app_context.dart';
-import '../../../domain/entities/vietmap_routing_params.dart';
-import '../../../domain/repository/vietmap_api_repositories.dart';
-import '../../../domain/usecase/get_direction_usecase.dart';
+import '../../../domain/entities/vietmap_routing_params_impl.dart';
 
 class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
   final talker = Talker();
@@ -41,10 +39,12 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       params.destinationPoint = temp;
       params.destinationDescription = tempDes;
 
-      emit(RoutingState(
-          listPoint: <LatLng>[...(state.listPoint ?? [])],
-          routingModel: VietMapRoutingModel.copyWith(state.routingModel),
-          routingParams: params));
+      emit(
+        RoutingState(
+            listPoint: <LatLng>[...(state.listPoint ?? [])],
+            routingModel: VietMapRoutingModel.copyWith(state.routingModel),
+            routingParams: params),
+      );
       if (params.originPoint != null && params.destinationPoint != null) {
         // add(RoutingEventGetDirection(
         //     from: params.originPoint!, to: params.destinationPoint!));
@@ -68,13 +68,13 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
   _onRoutingEventUpdateRouteParams(
       RoutingEventUpdateRouteParams event, Emitter<RoutingState> emit) async {
     emit(RoutingStateLoading(state));
-    VietMapRoutingParams? params = state.routingParams ??
-        VietMapRoutingParams(
-            vehicle: event.vehicle ?? VehicleType.car,
-            apiKey: AppContext.getVietmapAPIKey() ?? '',
-            originPoint: null,
-            destinationPoint: null);
-    params.vehicle = event.vehicle ?? params.vehicle;
+    VietMapRoutingParamsImpl? params = state.routingParams ??
+        VietMapRoutingParamsImpl(
+          apiKey: AppContext.getVietmapAPIKey() ?? '',
+          originPoint: null,
+          destinationPoint: null,
+        );
+    params.vehicle = event.vehicleType ?? params.vehicle;
     params.destinationPoint = event.destinationPoint ?? params.destinationPoint;
     params.originPoint = event.originPoint ?? params.originPoint;
     params.originDescription =
@@ -83,6 +83,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
         event.destinationDescription ?? params.destinationDescription;
     params.navigationController =
         event.navigationController ?? params.navigationController;
+
     try {
       if (params.originPoint == null) {
         params.originDescription = 'Vị trí của bạn';
@@ -92,6 +93,11 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       talker.handle(e.toString());
     }
     if (params.originPoint != null && params.destinationPoint != null) {
+      params.points = [
+        params.originPoint!,
+        ...state.routingParams?.waypoints ?? [],
+        params.destinationPoint!
+      ];
       emit(RoutingState(
           listPoint: <LatLng>[...(state.listPoint ?? [])],
           routingModel: VietMapRoutingModel.copyWith(state.routingModel),
@@ -105,11 +111,14 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
             ('${params.originPoint!.latitude}--o--${params.originPoint!.longitude}'));
         Talker().debug(
             ('${params.destinationPoint!.latitude}--d--${params.destinationPoint!.longitude}'));
-        params.navigationController!.buildRoute(waypoints: [
-          LatLng(params.originPoint!.latitude, params.originPoint!.longitude),
-          LatLng(params.destinationPoint!.latitude,
-              params.destinationPoint!.longitude)
-        ], profile: params.vehicle.convertToDrivingProfile());
+        params.navigationController!.buildRoute(
+          waypoints: [
+            LatLng(params.originPoint!.latitude, params.originPoint!.longitude),
+            LatLng(params.destinationPoint!.latitude,
+                params.destinationPoint!.longitude)
+          ],
+          profile: params.vehicle.convertToDrivingProfile(),
+        );
       }
     }
   }
@@ -120,15 +129,15 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
 
     emit(RoutingStateLoading(state));
     var routingParams = state.routingParams ??
-        VietMapRoutingParams(
-            originPoint: event.from,
-            destinationPoint: event.to,
-            apiKey: AppContext.getVietmapAPIKey() ?? '');
+        VietMapRoutingParamsImpl(
+          originPoint: event.from,
+          destinationPoint: event.to,
+          apiKey: AppContext.getVietmapAPIKey() ?? '',
+        );
     routingParams.originPoint = event.from;
     routingParams.destinationPoint = event.to;
     EasyLoading.show();
-    var response =
-        await GetDirectionUseCase(VietmapApiRepositories()).call(routingParams);
+    var response = await Vietmap.routing(routingParams);
     EasyLoading.dismiss();
     response.fold(
         (l) => RoutingStateGetDirectionError(message: 'Error', state: state),

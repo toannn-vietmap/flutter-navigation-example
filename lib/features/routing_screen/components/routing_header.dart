@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_map/features/routing_screen/components/vehicle_button.dart';
 import 'package:vietmap_map/features/routing_screen/models/routing_header_model.dart';
 
 import '../../../constants/colors.dart';
 import '../../../constants/route.dart';
-import '../../../domain/entities/vietmap_routing_params.dart';
 import '../bloc/bloc.dart';
 
 class RoutingHeader extends StatelessWidget {
@@ -45,7 +46,7 @@ class RoutingHeader extends StatelessWidget {
                           context
                               .read<RoutingBloc>()
                               .add(RoutingEventClearDirection());
-                          Navigator.pop(context);
+                          context.pop();
                         },
                         child: const Icon(Icons.arrow_back_ios_new_rounded,
                             color: Colors.grey)),
@@ -90,9 +91,8 @@ class RoutingHeader extends StatelessWidget {
                           currentVehicleType:
                               state.routingParams?.vehicle ?? VehicleType.car,
                           onPressed: () {
-                            context
-                                .read<RoutingBloc>()
-                                .add(RoutingEventUpdateRouteParams(vehicle: e));
+                            context.read<RoutingBloc>().add(
+                                RoutingEventUpdateRouteParams(vehicleType: e));
                           })))),
             );
           }),
@@ -125,9 +125,10 @@ class RoutingHeader extends StatelessWidget {
                             isFromOrigin: true,
                             addressText:
                                 state.routingParams?.originDescription);
-                        Navigator.pushNamed(
-                            context, Routes.searchAddressForRoutingScreen,
-                            arguments: data);
+                        context.pushNamed(
+                          Routes.searchAddressForRoutingScreen,
+                          extra: data,
+                        );
                       },
                       child: TextField(
                         enabled: false,
@@ -165,9 +166,10 @@ class RoutingHeader extends StatelessWidget {
                             isFromOrigin: false,
                             addressText:
                                 state.routingParams?.destinationDescription);
-                        Navigator.pushNamed(
-                            context, Routes.searchAddressForRoutingScreen,
-                            arguments: data);
+                        await context.pushNamed(
+                          Routes.searchAddressForRoutingScreen,
+                          extra: data,
+                        );
                       },
                       child: TextField(
                         enabled: false,

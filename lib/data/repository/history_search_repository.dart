@@ -1,13 +1,10 @@
-import 'package:dartz/dartz.dart';
-
-import '../../core/failures/failure.dart';
-import '../models/vietmap_autocomplete_model.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 abstract class HistorySearchRepository {
-  Future<Either<Failure, List<VietmapAutocompleteModel>>> getHistorySearch();
+  Future<Either<Failure, List<VietmapAutocompleteModelV4>>> getHistorySearch();
   Future<Either<Failure, bool>> addHistorySearch(
-      VietmapAutocompleteModel recentSearch);
+      VietmapAutocompleteModelV4 recentSearch);
   Future<Either<Failure, bool>> removeHistorySearch(
-      VietmapAutocompleteModel model);
+      VietmapAutocompleteModelV4 model);
   Future<Either<Failure, bool>> removeAllHistorySearch();
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../bloc/bloc.dart';
 import 'tile_option_item.dart';
@@ -13,7 +14,6 @@ enum MapTiles {
 
   final String value;
   const MapTiles(this.value);
-  
 }
 
 class SelectMapTilesModal extends StatefulWidget {
@@ -40,7 +40,7 @@ class _SelectMapTilesModalState extends State<SelectMapTilesModal> {
               const Text('Loại bản đồ', style: TextStyle(fontSize: 16)),
               InkWell(
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
                 },
                 child: const Icon(Icons.close),
               )

@@ -11,76 +11,12 @@ extension TileMapExtension on MapTiles {
       case MapTiles.vietmapTileMap:
         return "https://maps.vietmap.vn/maps/styles/lm/style.json?apikey=$apiKey";
       case MapTiles.vietmapRasterLM:
-        return """{
-      version: 8,
-      sources: {
-        raster_vm: {
-          type: "raster",
-          tiles: [
-            `https://maps.vietmap.vn/api/lm/{z}/{x}/{y}@2x.png?apikey=${apiKey}`,
-          ],
-          tileSize: 256,
-          attribution: "Vietmap@copyright",
-        }
-      },
-      layers: [
-        {
-          id: "layer_raster_vm",
-          type: "raster",
-          source: "raster_vm",
-          minzoom: 0,
-          maxzoom: 20,
-        },
-      ],
-    }""";
+        return "https://maps.vietmap.vn/maps/styles/lm/tiles.json?apikey=$apiKey";
       case MapTiles.vietmapRasterDM:
-        return """{
-      version: 8,
-      sources: {
-        raster_vm: {
-          type: "raster",
-          tiles: [
-            `https://maps.vietmap.vn/api/maps/raster/dm/{z}/{x}/{y}@2x.png?apikey=${apiKey}`,
-          ],
-          tileSize: 256,
-          attribution: "Vietmap@copyright",
-        }
-      },
-      layers: [
-        {
-          id: "layer_raster_vm",
-          type: "raster",
-          source: "raster_vm",
-          minzoom: 0,
-          maxzoom: 20,
-        },
-      ],
-    }""";
+        return "https://maps.vietmap.vn/maps/styles/dm/tiles.json?apikey=$apiKey";
 
       case MapTiles.vietmapRasterTile:
-        return """{
-      version: 8,
-      sources: {
-        raster_vm: {
-          type: "raster",
-          tiles: [
-            `https://maps.vietmap.vn/api/maps/raster/tm/{z}/{x}/{y}@2x.png?apikey=${apiKey}`,
-          ],
-          tileSize: 256,
-          attribution: "Vietmap@copyright",
-        },
-
-      },
-      layers: [
-        {
-          id: "layer_raster_vm",
-          type: "raster",
-          source: "raster_vm",
-          minzoom: 0,
-          maxzoom: 20,
-        },
-      ],
-    }""";
+        return "https://maps.vietmap.vn/maps/styles/tm/tiles.json?apikey=$apiKey";
     }
   }
 }

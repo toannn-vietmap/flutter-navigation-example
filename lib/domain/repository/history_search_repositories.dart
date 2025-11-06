@@ -1,90 +1,86 @@
-import 'package:dartz/dartz.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-
-import 'package:vietmap_map/data/models/vietmap_autocomplete_model.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/core/failures/cache_failure.dart';
 import 'package:vietmap_map/data/repository/history_search_repository.dart';
-import '../../constants/constants.dart';
-import '../../core/failures/failure.dart';
-import '../../core/failures/get_file_failure.dart';
 
 class HistorySearchRepositories implements HistorySearchRepository {
-  Box? _personBox;
+  static const String _keyHistorySearch = 'history_search';
+  static const int _maxHistoryItems = 20;
 
-  static final HistorySearchRepositories _singleton =
-      HistorySearchRepositories._internal();
-
-  factory HistorySearchRepositories() {
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(VietmapAutocompleteModelAdapter());
-    }
-
-    return _singleton;
-  }
-  HistorySearchRepositories._internal();
-  Future _openBox() async {
-    _personBox =
-        await Hive.openBox<VietmapAutocompleteModel>(hiveBoxHistorySearch);
-    return;
-  }
+  Future<SharedPreferences> get _prefs => SharedPreferences.getInstance();
 
   @override
   Future<Either<Failure, bool>> addHistorySearch(
-      VietmapAutocompleteModel recentSearch) async {
+      VietmapAutocompleteModelV4 recentSearch) async {
     try {
-      await _openBox();
-      if (_personBox?.length == 5) {
-        _personBox?.deleteAt(0);
+      final prefs = await _prefs;
+      final history = await _getHistoryList(prefs);
+
+      history.removeWhere((item) => item.refId == recentSearch.refId);
+
+      history.insert(0, recentSearch);
+
+      if (history.length > _maxHistoryItems) {
+        history.removeRange(_maxHistoryItems, history.length);
       }
-      for (int i = 0; i < (_personBox?.length ?? 0); i++) {
-        if (_personBox?.getAt(i)?.refId == recentSearch.refId) {
-          _personBox?.deleteAt(i);
-        }
-      }
-      _personBox?.add(recentSearch);
-      _personBox?.close();
+
+      final jsonList = history.map((e) => json.encode(e.toJson())).toList();
+      await prefs.setStringList(_keyHistorySearch, jsonList);
+
       return const Right(true);
     } catch (e) {
-      return Left(GetFileFailure());
+      return Left(CacheFailure(message: e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, List<VietmapAutocompleteModel>>>
+  Future<Either<Failure, List<VietmapAutocompleteModelV4>>>
       getHistorySearch() async {
     try {
-      await _openBox();
-
-      final List<VietmapAutocompleteModel> list =
-          List<VietmapAutocompleteModel>.from(_personBox?.values ?? []);
-      _personBox?.close();
-      return Right(list.reversed.toList());
+      final prefs = await _prefs;
+      final history = await _getHistoryList(prefs);
+      return Right(history);
     } catch (e) {
-      return Left(GetFileFailure());
+      return Left(CacheFailure(message: e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, bool>> removeAllHistorySearch() async {
     try {
-      await _openBox();
-      _personBox?.clear();
-      _personBox?.close();
+      final prefs = await _prefs;
+      await prefs.remove(_keyHistorySearch);
       return const Right(true);
     } catch (e) {
-      return Left(GetFileFailure());
+      return Left(CacheFailure(message: e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, bool>> removeHistorySearch(
-      VietmapAutocompleteModel model) async {
+      VietmapAutocompleteModelV4 model) async {
     try {
-      await _openBox();
-      _personBox?.delete(model);
-      _personBox?.close();
+      final prefs = await _prefs;
+      final history = await _getHistoryList(prefs);
+
+      history.removeWhere((item) => item.refId == model.refId);
+
+      final jsonList = history.map((e) => json.encode(e.toJson())).toList();
+      await prefs.setStringList(_keyHistorySearch, jsonList);
+
       return const Right(true);
     } catch (e) {
-      return Left(GetFileFailure());
+      return Left(CacheFailure(message: e.toString()));
     }
+  }
+
+  Future<List<VietmapAutocompleteModelV4>> _getHistoryList(
+      SharedPreferences prefs) async {
+    final jsonList = prefs.getStringList(_keyHistorySearch) ?? [];
+    return jsonList
+        .map((jsonStr) =>
+            VietmapAutocompleteModelV4.fromJson(json.decode(jsonStr)))
+        .toList();
   }
 }

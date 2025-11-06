@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:vietmap_map/data/models/vietmap_autocomplete_model.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_map/features/map_screen/bloc/bloc.dart';
 
 class ItemWithEntryPoints extends StatelessWidget {
   const ItemWithEntryPoints({super.key, required this.model});
-  final VietmapAutocompleteModel model;
+  final VietmapAutocompleteModelV4 model;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class ItemWithEntryPoints extends StatelessWidget {
         onTap: () {
           context.read<MapBloc>().add(MapEventGetDetailAddress(model));
           FocusScope.of(context).requestFocus(FocusNode());
-          Navigator.pop(context);
+          context.pop();
         },
         child: Row(
           children: [
@@ -38,7 +39,7 @@ class ItemWithEntryPoints extends StatelessWidget {
         ),
       ),
       children: [
-        for (var entryPoint in model.entryPoint!)
+        for (var entryPoint in model.entryPoints!)
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -47,7 +48,7 @@ class ItemWithEntryPoints extends StatelessWidget {
                   context.read<MapBloc>().add(
                       MapEventGetEntryPointDetailAddress(entryPoint.refId!));
                   FocusScope.of(context).requestFocus(FocusNode());
-                  Navigator.pop(context);
+                  context.pop();
                 },
                 child: Row(
                   children: [
@@ -57,7 +58,7 @@ class ItemWithEntryPoints extends StatelessWidget {
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(
-                          entryPoint!.display ?? '',
+                          entryPoint!.name ?? '',
                           style: const TextStyle(fontSize: 13),
                         ),
                       ),

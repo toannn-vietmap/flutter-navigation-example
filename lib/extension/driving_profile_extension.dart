@@ -1,6 +1,5 @@
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
-
-import '../domain/entities/vietmap_routing_params.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 extension DrivingProfileExtension on DrivingProfile? {
   VehicleType convertToVehicleType() {

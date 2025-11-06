@@ -46,11 +46,11 @@ class TileOptionItem extends StatelessWidget {
   }
 
   getMapTypeOptionsImage(MapTiles mapType) {
-    return Image.asset(
-      'assets/images/vietmap_vector.png',
-      width: 60,
-      height: 60,
-    );
+    // return Image.asset(
+    //   'assets/images/vietmap_vector.png',
+    //   width: 60,
+    //   height: 60,
+    // );
     switch (mapType) {
       case MapTiles.vietmapVector:
         return Image.asset(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:vietmap_map/domain/entities/vietmap_routing_params.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/extension/color_extension.dart';
 
 import '../../../constants/colors.dart';
 
@@ -24,12 +25,12 @@ class VehicleButton extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
             color: vehicleType == currentVehicleType
-                ? vietmapColor.withOpacity(0.1)
+                ? vietmapColor.withOpacityValue(0.1)
                 : CupertinoColors.white,
             border: Border.all(
                 color: vehicleType == currentVehicleType
-                    ? vietmapColor.withOpacity(0.5)
-                    : CupertinoColors.black.withOpacity(0.1)),
+                    ? vietmapColor.withOpacityValue(0.5)
+                    : CupertinoColors.black.withOpacityValue(0.1)),
             borderRadius: BorderRadius.circular(40)),
         child: CupertinoButton(
           padding: EdgeInsets.zero,
