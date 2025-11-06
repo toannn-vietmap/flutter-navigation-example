@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:talker/talker.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_map/components/debouncer_search.dart';
@@ -30,7 +31,7 @@ class _PickAddressScreenState extends State<PickAddressScreen> {
       centerTitle: false,
       leading: InkWell(
           onTap: () {
-            Navigator.pop(context);
+            context.pop();
           },
           child: const Icon(Icons.arrow_back_ios_rounded, color: Colors.black)),
       title: const Column(
@@ -112,11 +113,20 @@ class _PickAddressScreenState extends State<PickAddressScreen> {
                           ]),
                       width: MediaQuery.of(context).size.width,
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             state.response.display ?? '',
                             style: const TextStyle(
                                 fontSize: 17, fontWeight: FontWeight.w500),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5.0),
+                            child: Text(
+                              'Mới: ${state.response.dataNew?.address ?? ''}',
+                              style: const TextStyle(
+                                  fontSize: 17, color: Colors.blue),
+                            ),
                           ),
                           const Divider(),
                           TextButton(
@@ -126,7 +136,7 @@ class _PickAddressScreenState extends State<PickAddressScreen> {
                                       VietMapPickerData(
                                           _controller!.cameraPosition!.target,
                                           state.response.display);
-                                  Navigator.pop(context, pickerData);
+                                  context.pop(pickerData);
                                 }
                               },
                               child: const Row(

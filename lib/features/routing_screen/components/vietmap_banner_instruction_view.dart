@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:vietmap_flutter_navigation/models/constant.dart';
 import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
+import 'package:vietmap_map/extension/color_extension.dart';
 
 import '../../../constants/colors.dart';
 
@@ -26,7 +27,7 @@ class VietmapBannerInstructionView extends StatelessWidget {
                 margin: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: vietmapColor.withOpacity(0.7)),
+                    color: vietmapColor.withOpacityValue(0.7)),
                 height: 100,
                 width: MediaQuery.of(context).size.width - 20,
                 child: Row(children: [

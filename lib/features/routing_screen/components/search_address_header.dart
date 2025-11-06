@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../constants/route.dart';
 import '../../../core/debounce.dart';
@@ -90,7 +91,7 @@ class _SearchAddressHeaderState extends State<SearchAddressHeader> {
                             borderSide: const BorderSide(color: Colors.grey)),
                         prefixIcon: InkWell(
                           onTap: () {
-                            Navigator.pop(context);
+                            context.pop();
                           },
                           child: const Icon(
                             Icons.arrow_back_ios_rounded,
@@ -126,11 +127,11 @@ class _SearchAddressHeaderState extends State<SearchAddressHeader> {
             tag: 'actionButton',
             child: TextButton(
                 onPressed: () async {
-                  var location = await Navigator.pushNamed(
-                      context, Routes.pickAddressScreen);
+                  var location =
+                      await context.pushNamed(Routes.pickAddressScreen);
                   if (location != null) {
                     location = location as VietMapPickerData;
-                    if (!mounted) return;
+                    if (!context.mounted) return;
                     context.read<RoutingBloc>().add(
                         RoutingEventUpdateRouteParams(
                             originPoint: widget.isSearchFromOrigin
@@ -145,7 +146,7 @@ class _SearchAddressHeaderState extends State<SearchAddressHeader> {
                             destinationDescription: !widget.isSearchFromOrigin
                                 ? location.displayText ?? 'Vị trí ghim'
                                 : null));
-                    Navigator.pop(context);
+                    context.pop();
                   }
                 },
                 child: const Row(

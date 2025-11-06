@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_map/features/map_screen/bloc/bloc.dart';
 
@@ -11,7 +12,7 @@ class AutocompleteResponseItem extends StatelessWidget {
       onTap: () {
         context.read<MapBloc>().add(MapEventGetDetailAddress(model));
         FocusScope.of(context).requestFocus(FocusNode());
-        Navigator.pop(context);
+        context.pop();
       },
       child: Row(
         children: [

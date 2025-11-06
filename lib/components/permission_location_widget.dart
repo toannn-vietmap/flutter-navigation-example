@@ -25,6 +25,7 @@ class _PermissionLocationWidgetState extends State<PermissionLocationWidget> {
   bool _isRequesting = false;
 
   Future<void> _requestPermission() async {
+    debugPrint('Requesting location permission... ${widget.pathRiderect}');
     setState(() {
       _isRequesting = true;
     });
@@ -40,8 +41,8 @@ class _PermissionLocationWidgetState extends State<PermissionLocationWidget> {
           permission == LocationPermission.always) {
         if (widget.onPermissionGranted != null) {
           widget.onPermissionGranted!();
-        } else {
-          context.go((widget.pathRiderect ?? Routes.mapScreen));
+        } else if (mounted) {
+          context.pushReplacementNamed((widget.pathRiderect ?? Routes.mapScreen));
         }
       } else if (permission == LocationPermission.deniedForever) {
         _showOpenSettingsDialog();
@@ -69,15 +70,16 @@ class _PermissionLocationWidgetState extends State<PermissionLocationWidget> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: const Text('Hủy'),
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.of(context).pop();
+                context.pop();
                 await openAppSettings().then((value) {
-                  if (value) {
-                    Navigator.of(context).pop();
+                  if (context.mounted && value) {
+                    context
+                        .pushReplacementNamed((widget.pathRiderect ?? Routes.mapScreen));
                   }
                 });
               },
@@ -100,7 +102,7 @@ class _PermissionLocationWidgetState extends State<PermissionLocationWidget> {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: const Text('Đóng'),
             ),
           ],

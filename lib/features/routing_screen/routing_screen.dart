@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/models/direction_route.dart';
@@ -12,7 +13,6 @@ import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
 import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 import 'package:vietmap_flutter_navigation/views/navigation_view.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
-import 'package:vietmap_map/components/permission_location_widget.dart';
 import 'package:vietmap_map/constants/colors.dart';
 import 'package:vietmap_map/extension/latlng_extension.dart';
 import 'package:vietmap_map/features/routing_screen/components/routing_header.dart';
@@ -28,7 +28,8 @@ import 'components/vietmap_bottom_view.dart';
 import 'models/routing_params_model.dart';
 
 class RoutingScreen extends StatefulWidget {
-  const RoutingScreen({super.key});
+  final RoutingParamsModel? args;
+  const RoutingScreen({super.key, this.args});
 
   @override
   State<RoutingScreen> createState() => _RoutingScreenState();
@@ -119,7 +120,7 @@ class _RoutingScreenState extends State<RoutingScreen> {
                         actions: [
                           TextButton(
                               onPressed: () {
-                                Navigator.pop(context);
+                                context.pop();
                               },
                               child: const Text('Không')),
                           TextButton(
@@ -127,7 +128,7 @@ class _RoutingScreenState extends State<RoutingScreen> {
                                 // _vietmapAutomotivePlugin.stopNavigation();
                                 _navigationController?.finishNavigation();
                                 _onStopNavigation();
-                                Navigator.pop(context);
+                                context.pop();
                               },
                               child: const Text('Có'))
                         ],
@@ -198,10 +199,8 @@ class _RoutingScreenState extends State<RoutingScreen> {
                             }
                           },
                         );
-                        if (ModalRoute.of(context)!.settings.arguments !=
-                            null) {
-                          var args = ModalRoute.of(context)!.settings.arguments
-                              as VietmapModel;
+                        if (widget.args != null) {
+                          var args = widget.args!;
                           routingBloc.add(RoutingEventUpdateRouteParams(
                               destinationDescription:
                                   args.address ?? 'Vị trí đã chọn',
@@ -218,10 +217,8 @@ class _RoutingScreenState extends State<RoutingScreen> {
                                 LatLng(position.latitude, position.longitude)));
 
                         EasyLoading.show();
-                        if (ModalRoute.of(context)!.settings.arguments !=
-                            null) {
-                          var args = ModalRoute.of(context)!.settings.arguments
-                              as RoutingParamsModel;
+                        if (widget.args != null) {
+                          var args = widget.args!;
                           var listWaypoint = <LatLng>[];
                           var res = await Geolocator.getCurrentPosition();
                           listWaypoint.add(LatLng(res.toLatLng().latitude,
@@ -282,8 +279,8 @@ class _RoutingScreenState extends State<RoutingScreen> {
                                   actions: [
                                     TextButton(
                                         onPressed: () {
-                                          Navigator.pop(context);
-                                          Navigator.pop(context);
+                                          context.pop();
+                                          context.pop();
                                         },
                                         child: const Text('OK'))
                                   ],
@@ -307,6 +304,9 @@ class _RoutingScreenState extends State<RoutingScreen> {
                                   // _vietMapAutomotivePlugin.cancelNavigation();
                                   setState(() {
                                     _isRunning = false;
+                                    context.read<RoutingBloc>().add(
+                                        RoutingEventUpdateRouteParams(
+                                            vehicleType: VehicleType.car));
                                   });
                                 },
                                 routeProgressEvent: routeProgressEvent,
@@ -393,7 +393,7 @@ class _RoutingScreenState extends State<RoutingScreen> {
   }
 
   _onStopNavigation() {
-    Navigator.pop(context);
+    context.pop();
     setState(() {
       routeProgressEvent = null;
       _isRunning = false;

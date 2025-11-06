@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../map_screen/bloc/map_bloc.dart';
 import '../map_screen/bloc/map_event.dart';
@@ -8,7 +9,8 @@ import 'components/search_address_header.dart';
 import 'models/routing_header_model.dart';
 
 class SearchAddress extends StatefulWidget {
-  const SearchAddress({super.key});
+  final RoutingHeaderModel? args;
+  const SearchAddress({super.key, this.args});
 
   @override
   State<SearchAddress> createState() => _SearchAddressState();
@@ -20,8 +22,7 @@ class _SearchAddressState extends State<SearchAddress> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      var args =
-          ModalRoute.of(context)?.settings.arguments as RoutingHeaderModel?;
+      var args = widget.args;
       if (args != null) {
         setState(() {
           isSearchFromOrigin = args.isFromOrigin;
@@ -56,7 +57,7 @@ class _SearchAddressState extends State<SearchAddress> {
                           context.read<MapBloc>().add(
                               MapEventGetDetailAddress(state.response[index]));
                           FocusScope.of(context).requestFocus(FocusNode());
-                          Navigator.pop(context);
+                          context.pop();
                         },
                         child: Row(
                           children: [
@@ -72,6 +73,14 @@ class _SearchAddressState extends State<SearchAddress> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(state.response[index].address ?? ''),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 5.0),
+                                      child: Text(
+                                          'Mới: ${state.response[index].dataNew?.address ?? ''}',
+                                          style: const TextStyle(
+                                              color: Colors.blue)),
+                                    ),
                                     const Divider()
                                   ],
                                 ),
