@@ -31,6 +31,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     on<MapEventShowPlaceDetail>(_onMapEventShowPlaceDetail);
     on<MapEventUserClickOnMapPoint>(_onMapEventUserClickOnMapPoint);
     on<MapEventChangeMapTiles>(_onMapEventChangeMapTiles);
+    on<MapEventRequestPermissionLocation>(_onMapEventRequestPermissionLocation);
   }
 
   _onMapEventChangeMapTiles(
@@ -254,5 +255,16 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     EasyLoading.dismiss();
     response.fold((l) => emit(MapStateSearchAddressError('Error', state)),
         (r) => emit(MapStateSearchAddressSuccess(r, state)));
+  }
+
+  _onMapEventRequestPermissionLocation(
+      MapEventRequestPermissionLocation event, Emitter<MapState> emit) async {
+    emit(MapStateLoading(state));
+    emit(
+      MapStateAccessRequestPermissionLocation(
+          state: state,
+          response: event.response,
+          isStartNavigation: event.isStartNavigation),
+    );
   }
 }

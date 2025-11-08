@@ -1,3 +1,4 @@
+import 'package:anti_mitm/native_flutter_proxy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -13,6 +14,13 @@ String? nextRoute;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  var isNoConnectToProxy = await AntiMitm.performSecurityCheck(autoBlock: true);
+
+  if (!isNoConnectToProxy) {
+    AntiMitm.blockAllConnections();
+  }
+
   try {
     await dotenv.load(fileName: ".env");
     Vietmap.getInstance(dotenv.env['VIETMAP_API_KEY'] ?? '');
