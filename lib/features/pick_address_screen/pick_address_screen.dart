@@ -116,14 +116,20 @@ class _PickAddressScreenState extends State<PickAddressScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            state.response.display ?? '',
+                            state.response.name ?? '',
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            state.response.address ?? '',
                             style: const TextStyle(
                                 fontSize: 17, fontWeight: FontWeight.w500),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5.0),
                             child: Text(
-                              'Mới: ${state.response.dataNew?.address ?? ''}',
+                              'Mới: ${state.response.dataNew?.address ?? (state.response.address ?? '')}',
                               style: const TextStyle(
                                   fontSize: 17, color: Colors.blue),
                             ),
