@@ -68,7 +68,6 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
       builder: (_, state) {
         if (state is MapStateGetPlaceDetailSuccess) {
           return Container(
-            height: 200,
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 15),
             padding: const EdgeInsets.only(bottom: 10),
@@ -99,22 +98,21 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
                 SizedBox(
                   width: double.infinity,
                   child: Text(
-                    '${state.response.hsNum ?? ''}, ${state.response.street ?? ''}',
+                    state.response.getFullName() ?? '',
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  '${state.response.ward ?? ''}, ${state.response.district ?? ''}, ${state.response.city ?? ''}',
+                  state.response.getFullWithoutName() ?? '',
                   style: const TextStyle(fontSize: 16),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                // const Spacer(),
-                const SizedBox(height: 10),
+                const Spacer(),
                 Row(
                   children: [
                     MapActionButton(
@@ -159,7 +157,6 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
         }
         if (state is MapStateGetLocationFromCoordinateSuccess) {
           return Container(
-            height: 250,
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 15),
             padding: const EdgeInsets.only(bottom: 10),
@@ -202,17 +199,17 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
                     style: const TextStyle(fontSize: 16)),
                 const SizedBox(height: 10),
                 Text(
-                  'Mới: ${state.response.dataNew?.address ?? ''}',
+                  'Mới: ${state.response.dataNew?.address ?? (state.response.address ?? '')}',
                   style: const TextStyle(fontSize: 16, color: Colors.blue),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  'Khoảng cách: ${state.response.distanceFromCurrentLocation?.toStringAsFixed(2) ?? 0} km',
-                  style: const TextStyle(fontSize: 16),
-                  maxLines: 2,
-                ),
+                // Text(
+                //   'Khoảng cách: ${state.response.distance?.toStringAsFixed(2) ?? 0} km',
+                //   style: const TextStyle(fontSize: 16),
+                //   maxLines: 2,
+                // ),
                 Row(
                   children: [
                     MapActionButton(

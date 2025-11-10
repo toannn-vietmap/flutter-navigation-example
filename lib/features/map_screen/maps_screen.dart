@@ -476,7 +476,10 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                 SlidingUpPanel(
                   isDraggable: true,
                   controller: _panelController,
-                  maxHeight: 250,
+                  maxHeight: context.read<MapBloc>().state
+                          is MapStateGetPlaceDetailSuccess
+                      ? 170
+                      : 220,
                   minHeight: 0,
                   parallaxEnabled: true,
                   parallaxOffset: .1,

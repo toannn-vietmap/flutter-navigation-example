@@ -1,5 +1,5 @@
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
-import 'package:vietmap_map/data/models/vietmap_place_model.dart';
+import 'package:vietmap_map/data/models/vietmap_place_model_impl.dart';
 import 'package:vietmap_map/data/repository/vietmap_api_repository.dart';
 import 'package:vietmap_map/domain/entities/vietmap_routing_params_impl.dart';
 
