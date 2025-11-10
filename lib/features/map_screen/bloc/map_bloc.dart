@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:vietmap_map/data/models/vietmap_place_model_impl.dart';
 import 'package:vietmap_map/data/models/vietmap_reverse_model_v4_impl.dart';
 
 import 'package:vietmap_map/domain/repository/history_search_repositories.dart';
@@ -31,6 +33,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     on<MapEventShowPlaceDetail>(_onMapEventShowPlaceDetail);
     on<MapEventUserClickOnMapPoint>(_onMapEventUserClickOnMapPoint);
     on<MapEventChangeMapTiles>(_onMapEventChangeMapTiles);
+    on<MapEventRequestPermissionLocation>(_onMapEventRequestPermissionLocation);
   }
 
   _onMapEventChangeMapTiles(
@@ -202,7 +205,8 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     EasyLoading.dismiss();
     response.fold((l) => emit(MapStateGetPlaceDetailError('Error', state)),
         (r) {
-      emit(MapStateGetPlaceDetailSuccess(r, state));
+      emit(MapStateGetPlaceDetailSuccess(
+          VietmapPlaceModelImpl.fromJson(r.toJson()), state));
     });
   }
 
@@ -211,7 +215,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     emit(MapStateLoading(state));
     EasyLoading.show();
     AddHistorySearchUseCase(HistorySearchRepositories()).call(event.model);
-    var response;
+    Either<Failure, VietmapPlaceModel>? response;
     await Future.wait(
       [
         Vietmap.placeV4(event.model.refId!).then((value) {
@@ -223,9 +227,13 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       ],
     );
     await EasyLoading.dismiss();
-    response.fold((l) => emit(MapStateGetPlaceDetailError('Error', state)),
+    response?.fold((l) => emit(MapStateGetPlaceDetailError('Error', state)),
         (r) {
-      emit(MapStateGetPlaceDetailSuccess(r, state));
+      debugPrint('Place detail: ${r.toJson()}');
+      var placeModel = VietmapPlaceModelImpl.fromJson(r.toJson());
+      placeModel.newLocation = event.model.dataNew;
+      emit(MapStateGetPlaceDetailSuccess(
+          VietmapPlaceModelImpl.fromJson(r.toJson()), state));
     });
   }
 
@@ -237,7 +245,8 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     EasyLoading.dismiss();
     response.fold((l) => emit(MapStateGetPlaceDetailError('Error', state)),
         (r) {
-      emit(MapStateGetPlaceDetailSuccess(r, state));
+      emit(MapStateGetPlaceDetailSuccess(
+          VietmapPlaceModelImpl.fromJson(r.toJson()), state));
     });
   }
 
@@ -254,5 +263,16 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     EasyLoading.dismiss();
     response.fold((l) => emit(MapStateSearchAddressError('Error', state)),
         (r) => emit(MapStateSearchAddressSuccess(r, state)));
+  }
+
+  _onMapEventRequestPermissionLocation(
+      MapEventRequestPermissionLocation event, Emitter<MapState> emit) async {
+    emit(MapStateLoading(state));
+    emit(
+      MapStateAccessRequestPermissionLocation(
+          state: state,
+          response: event.response,
+          isStartNavigation: event.isStartNavigation),
+    );
   }
 }

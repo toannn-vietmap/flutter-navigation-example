@@ -76,10 +76,12 @@ class _RoutingScreenState extends State<RoutingScreen> {
   void initState() {
     super.initState();
     initialize();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      Future.delayed(const Duration(milliseconds: 200))
-          .then((value) => _panelController.hide());
-    });
+    if (widget.args == null) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+        Future.delayed(const Duration(milliseconds: 200))
+            .then((value) => _panelController.hide());
+      });
+    }
   }
 
   @override
@@ -203,7 +205,7 @@ class _RoutingScreenState extends State<RoutingScreen> {
                           var args = widget.args!;
                           routingBloc.add(RoutingEventUpdateRouteParams(
                               destinationDescription:
-                                  args.address ?? 'Vị trí đã chọn',
+                                  args.getAddress() ?? 'Vị trí đã chọn',
                               destinationPoint: LatLng(
                                   args.lat?.toDouble() ?? 0,
                                   args.lng?.toDouble() ?? 0)));

@@ -84,3 +84,10 @@ class MapEventChangeMapTiles extends MapEvent {
 }
 
 class MapEventReceiveCreateRoute extends MapEvent {}
+
+class MapEventRequestPermissionLocation extends MapEvent {
+  final VietmapModel response;
+  final bool isStartNavigation;
+  MapEventRequestPermissionLocation(
+      {required this.response, this.isStartNavigation = false});
+}

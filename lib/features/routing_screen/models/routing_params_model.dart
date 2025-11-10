@@ -34,4 +34,14 @@ class RoutingParamsModel extends VietmapModel {
         display: snippet,
         isStartNavigation: isStartNavigation);
   }
+
+  String? getAddress() {
+    if (name != null && name!.isNotEmpty) {
+      return name;
+    }
+    if (address != null && address!.isNotEmpty) {
+      return address;
+    }
+    return display;
+  }
 }

@@ -77,7 +77,7 @@ class _SearchAddressState extends State<SearchAddress> {
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 5.0),
                                       child: Text(
-                                          'Mới: ${state.response[index].dataNew?.address ?? ''}',
+                                          'Mới: ${state.response[index].dataNew?.address ?? (state.response[index].address ?? '')}',
                                           style: const TextStyle(
                                               color: Colors.blue)),
                                     ),

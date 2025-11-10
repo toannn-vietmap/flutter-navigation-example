@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/data/models/vietmap_place_model_impl.dart';
 import 'package:vietmap_map/data/models/vietmap_reverse_model_v4_impl.dart';
 
 import '../components/select_map_tiles_modal.dart';
@@ -37,7 +38,7 @@ class MapStateSearchAddressError extends MapState {
 }
 
 class MapStateGetPlaceDetailSuccess extends MapState {
-  final VietmapPlaceModel response;
+  final VietmapPlaceModelImpl response;
   final MapState state;
 
   MapStateGetPlaceDetailSuccess(this.response, this.state)
@@ -107,4 +108,20 @@ class MapStateChangeMapTilesSuccess extends MapState {
   final MapState state;
   const MapStateChangeMapTilesSuccess(this.mapType, this.state)
       : super(mapTile: mapType);
+}
+
+class MapStateAccessRequestPermissionLocation extends MapState {
+  final MapState state;
+  final bool isStartNavigation;
+  final VietmapModel response;
+  MapStateAccessRequestPermissionLocation({
+    required this.state,
+    this.isStartNavigation = false,
+    required this.response,
+  }) : super(mapTile: state.mapTile);
+}
+
+class MapStateRejectPermissionLocation extends MapState {
+  final MapState state;
+  MapStateRejectPermissionLocation(this.state) : super(mapTile: state.mapTile);
 }

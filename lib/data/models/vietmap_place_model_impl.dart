@@ -1,6 +1,8 @@
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 class VietmapPlaceModelImpl extends VietmapPlaceModel {
+  VietmapAutocompleteModel? newLocation;
+
   VietmapPlaceModelImpl({
     super.display,
     super.name,
@@ -15,6 +17,7 @@ class VietmapPlaceModelImpl extends VietmapPlaceModel {
     super.district,
     super.wardId,
     super.ward,
+    this.newLocation,
   });
 
   VietmapPlaceModelImpl.fromJson(Map<String, dynamic> json) {
@@ -31,15 +34,25 @@ class VietmapPlaceModelImpl extends VietmapPlaceModel {
     ward = json['ward'];
     lat = json['lat'];
     lng = json['lng'];
+    newLocation = json['new_location'] != null
+        ? VietmapAutocompleteModel.fromJson(json['new_location'])
+        : null;
   }
 
-  String? getFullAddress() {
+  String? getFullWithoutName() {
+    var data = [hsNum, street, ward, district, city];
+    return data
+        .where((element) => element != null && element.isNotEmpty)
+        .join(', ');
+  }
+
+  String? getFullName() {
+    if (name != null && name!.isNotEmpty) {
+      return name;
+    }
     if (address != null && address!.isNotEmpty) {
       return address;
     }
-    if (display != null && display!.isNotEmpty) {
-      return display;
-    }
-    return name;
+    return '';
   }
 }

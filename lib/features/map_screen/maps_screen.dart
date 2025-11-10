@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:anti_mitm/native_flutter_proxy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,10 +9,12 @@ import 'package:go_router/go_router.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 import 'package:talker/talker.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
+import 'package:vietmap_map/components/permission_location_widget.dart';
 import 'package:vietmap_map/extension/color_extension.dart';
 import 'package:vietmap_map/extension/tilemap_extension.dart';
 import 'package:vietmap_map/features/map_screen/components/category_marker.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
+import 'package:vietmap_map/utils/location_util.dart';
 import '../../constants/colors.dart';
 import '../../constants/events.dart';
 import '../../constants/route.dart';
@@ -32,7 +35,7 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   final VietMapAutomotivePlugin _mapAutomotivePlugin =
       VietMapAutomotivePlugin.instance;
   final MethodChannel _channel = AppContext.getMapChannel();
@@ -47,9 +50,11 @@ class _MapScreenState extends State<MapScreen> {
   MyLocationRenderMode myLocationRenderMode = MyLocationRenderMode.compass;
   final talker = Talker();
   String tileMap = AppContext.getVietmapMapStyleUrl() ?? "";
+  bool isRequestLocationPermission = false;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     talker.enable();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       EasyLoading.instance
@@ -81,6 +86,46 @@ class _MapScreenState extends State<MapScreen> {
       //   });
       // });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    talker.disable();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (isRequestLocationPermission) {
+          isRequestLocationPermission = false;
+          await LocationUtil.checkLocationPermission().then((value) {
+            if (value && mounted) {
+              context.pushNamed(Routes.routingScreen);
+            }
+          });
+        }
+        break;
+      case AppLifecycleState.inactive:
+        debugPrint('AppLifecycleState.inactive');
+        break;
+      case AppLifecycleState.paused:
+        debugPrint('AppLifecycleState.paused');
+        break;
+      case AppLifecycleState.detached:
+        debugPrint('AppLifecycleState.detached');
+        break;
+      case AppLifecycleState.hidden:
+        var isConnectedToSensitiveProxy =
+            await AntiMitm.isConnectedToSensitiveProxy();
+        if (isConnectedToSensitiveProxy) {
+          AntiMitm.blockAllConnections();
+        }
+        break;
+    }
   }
 
   @override
@@ -431,7 +476,10 @@ class _MapScreenState extends State<MapScreen> {
                 SlidingUpPanel(
                   isDraggable: true,
                   controller: _panelController,
-                  maxHeight: 200,
+                  maxHeight: context.read<MapBloc>().state
+                          is MapStateGetPlaceDetailSuccess
+                      ? 170
+                      : 220,
                   minHeight: 0,
                   parallaxEnabled: true,
                   parallaxOffset: .1,
@@ -475,7 +523,18 @@ class _MapScreenState extends State<MapScreen> {
                       FloatingActionButton(
                         heroTag: "myLocation",
                         backgroundColor: Colors.white,
-                        onPressed: () {
+                        onPressed: () async {
+                          await LocationUtil.checkLocationPermission()
+                              .then((value) {
+                            if (!value && context.mounted) {
+                              showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return const PermissionLocationDialog();
+                                },
+                              );
+                            }
+                          });
                           if (myLocationTrackingMode !=
                               MyLocationTrackingMode.trackingCompass) {
                             _controller?.updateMyLocationTrackingMode(
@@ -507,8 +566,21 @@ class _MapScreenState extends State<MapScreen> {
                       const SizedBox(height: 10),
                       FloatingActionButton(
                         heroTag: "navigation",
-                        onPressed: () {
-                          GoRouter.of(context).pushNamed(Routes.routingScreen);
+                        onPressed: () async {
+                          if (!context.mounted) return;
+                          bool hasPermission =
+                              await LocationUtil.checkLocationPermission();
+                          if (hasPermission) {
+                            context.pushNamed(Routes.routingScreen);
+                          } else {
+                            isRequestLocationPermission = true;
+                            showDialog(
+                              context: context,
+                              builder: (_) {
+                                return const PermissionLocationDialog();
+                              },
+                            );
+                          }
                         },
                         child: const Icon(Icons.directions),
                       ),

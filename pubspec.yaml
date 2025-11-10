@@ -31,7 +31,7 @@ dependencies:
   vietmap_flutter_navigation: ^4.1.0-pre.6
   talker: ^3.1.4 
   flutter_dotenv: ^5.1.0
-  native_flutter_proxy: ^0.2.3
+  anti_mitm: ^0.1.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
