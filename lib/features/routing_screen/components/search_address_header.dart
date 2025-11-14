@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vietmap_flutter_navigation/models/marker_widget.dart';
 
 import '../../../constants/route.dart';
 import '../../../core/debounce.dart';
@@ -10,9 +12,13 @@ import '../bloc/bloc.dart';
 
 class SearchAddressHeader extends StatefulWidget {
   const SearchAddressHeader(
-      {super.key, required this.isSearchFromOrigin, this.addressText});
+      {super.key,
+      required this.isSearchFromOrigin,
+      this.addressText,
+      this.defaultLocation});
   final bool isSearchFromOrigin;
   final String? addressText;
+  final LatLng? defaultLocation;
   @override
   State<SearchAddressHeader> createState() => _SearchAddressHeaderState();
 }
@@ -22,8 +28,15 @@ class _SearchAddressHeaderState extends State<SearchAddressHeader> {
 
   final Debounce _debounce = Debounce();
   final TextEditingController _controller = TextEditingController();
+  LatLng? currentPosition;
   @override
   void initState() {
+    Geolocator.getCurrentPosition().then((value) {
+      currentPosition = LatLng(value.latitude, value.longitude);
+    }).catchError((error) {
+      currentPosition = widget.defaultLocation;
+      debugPrint('Error getting current position: $error');
+    });
     if (widget.addressText != null &&
         widget.addressText != 'Vị trí của bạn' &&
         widget.addressText != 'Vị trí ghim') {
@@ -71,9 +84,8 @@ class _SearchAddressHeaderState extends State<SearchAddressHeader> {
                     onChanged: (value) {
                       if (value.isNotEmpty) {
                         _debounce.run(() {
-                          context
-                              .read<MapBloc>()
-                              .add(MapEventSearchAddress(address: value));
+                          context.read<MapBloc>().add(MapEventSearchAddress(
+                              address: value, focus: currentPosition));
                         });
                         setState(() {});
                       }

@@ -37,6 +37,17 @@ class RoutingStateInitial extends RoutingState {
         );
 }
 
+class RoutingStateUpdateCurrentLocation extends RoutingState {
+  final LatLng currentLocation;
+  RoutingStateUpdateCurrentLocation(RoutingState state, this.currentLocation)
+      : super(
+          routingModel: state.routingModel,
+          routingParams: state.routingParams,
+          directionRoute: state.directionRoute,
+          listPoint: state.listPoint,
+        );
+}
+
 class RoutingStateLoading extends RoutingState {
   RoutingStateLoading(RoutingState state)
       : super(

@@ -40,3 +40,8 @@ class RoutingEventNativeRouteBuilt extends RoutingEvent {
   final DirectionRoute directionRoute;
   RoutingEventNativeRouteBuilt({required this.directionRoute});
 }
+
+class RoutingEventUpdateCurrentLocation extends RoutingEvent {
+  final LatLng currentLocation;
+  RoutingEventUpdateCurrentLocation({required this.currentLocation});
+}

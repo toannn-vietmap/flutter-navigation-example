@@ -11,6 +11,7 @@ import 'package:talker/talker.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_map/components/permission_location_widget.dart';
 import 'package:vietmap_map/extension/color_extension.dart';
+import 'package:vietmap_map/extension/latlng_extension.dart';
 import 'package:vietmap_map/extension/tilemap_extension.dart';
 import 'package:vietmap_map/features/map_screen/components/category_marker.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
@@ -51,6 +52,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   final talker = Talker();
   String tileMap = AppContext.getVietmapMapStyleUrl() ?? "";
   bool isRequestLocationPermission = false;
+  var centerLocation;
   @override
   void initState() {
     super.initState();
@@ -239,9 +241,11 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                   styleString: tileMap,
                   // styleString: VMTileMap.satellite,
                   initialCameraPosition: const CameraPosition(
-                      target: LatLng(10.762201, 106.654213), zoom: 10),
+                      target: LatLng(10.759305734171475, 106.67597522521375),
+                      zoom: 10),
                   onMapCreated: (controller) {
                     _controller = controller;
+                    centerLocation = controller.cameraPosition?.target;
                     _channel.setMethodCallHandler(
                       (call) async {
                         switch (call.method) {
@@ -601,7 +605,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   // }
 
   _navigateToSearch() async {
-    await context.pushNamed(Routes.searchScreen);
+    if (!context.mounted) return;
+    context.pushNamed(Routes.searchScreen, extra: centerLocation);
   }
 
   _clearMarker() {

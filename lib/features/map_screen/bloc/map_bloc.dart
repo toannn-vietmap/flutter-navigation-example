@@ -254,10 +254,11 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       MapEventSearchAddress event, Emitter<MapState> emit) async {
     emit(MapStateLoading(state));
     EasyLoading.show();
-    var response = await Vietmap.geoCodeV4(
+    var response = await Vietmap.autocompleteV4(
       VietmapAutocompleteParamsV4(
         text: event.address,
         displayType: AutocompleteDisplayEnum.bothOldAndNew,
+        focusLocation: event.focus,
       ),
     );
     EasyLoading.dismiss();

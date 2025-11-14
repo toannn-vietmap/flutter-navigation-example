@@ -6,7 +6,8 @@ class MapEvent {}
 
 class MapEventSearchAddress extends MapEvent {
   final String address;
-  MapEventSearchAddress({required this.address});
+  final LatLng? focus;
+  MapEventSearchAddress({required this.address, this.focus});
 }
 
 class MapEventGetDetailAddress extends MapEvent {

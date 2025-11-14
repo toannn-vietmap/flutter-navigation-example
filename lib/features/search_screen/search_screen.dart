@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart'
+    hide Debounce;
 import 'package:vietmap_map/components/debouncer_search.dart';
 import 'package:vietmap_map/constants/events.dart';
 import 'package:vietmap_map/di/app_context.dart';
 import 'package:vietmap_map/features/search_screen/components/autocomplete_response_item.dart';
 import 'package:vietmap_map/features/search_screen/components/item_with_entry_points.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
+import 'package:vietmap_map/utils/location_util.dart';
 
 import '../map_screen/bloc/map_bloc.dart';
 import '../map_screen/bloc/map_event.dart';
@@ -15,7 +19,8 @@ import '../map_screen/bloc/map_state.dart';
 import 'components/recent_search.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final LatLng? defaultLocation;
+  const SearchScreen({super.key, this.defaultLocation});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -28,6 +33,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final FocusNode _focusNode = FocusNode();
   final Debounce _debounce = Debounce();
   final TextEditingController _searchController = TextEditingController();
+  var currentLocation;
   @override
   void initState() {
     super.initState();
@@ -46,9 +52,8 @@ class _SearchScreenState extends State<SearchScreen> {
               if (query != null && query.isNotEmpty && query.length >= 2) {
                 _searchController.text = query;
                 _debounce.run(() {
-                  context
-                      .read<MapBloc>()
-                      .add(MapEventSearchAddress(address: query));
+                  context.read<MapBloc>().add(MapEventSearchAddress(
+                      address: query, focus: currentLocation));
                 });
               }
               break;
@@ -66,6 +71,12 @@ class _SearchScreenState extends State<SearchScreen> {
           }
         },
       );
+    });
+    Geolocator.getCurrentPosition().then((value) {
+      currentLocation = LatLng(value.latitude, value.longitude);
+    }).catchError((error) {
+      currentLocation = widget.defaultLocation;
+      debugPrint('Error getting current position: $error');
     });
     context.read<MapBloc>().add(MapEventGetHistorySearch());
   }
@@ -104,9 +115,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           // _vietMapAutomotivePlugin.queryTextUpdated(
                           // query: value);
                           _debounce.run(() {
-                            context
-                                .read<MapBloc>()
-                                .add(MapEventSearchAddress(address: value));
+                            context.read<MapBloc>().add(MapEventSearchAddress(
+                                address: value, focus: currentLocation));
                           });
                         }
                       },
