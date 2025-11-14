@@ -20,7 +20,14 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     on<RoutingEventClearDirection>(_onRoutingEventClearDirection);
     on<RoutingEventReverseDirection>(_onRoutingEventReverseDirection);
     on<RoutingEventNativeRouteBuilt>(_onRoutingEventNativeRouteBuilt);
+    on<RoutingEventUpdateCurrentLocation>(_onRoutingEventUpdateCurrentLocation);
   }
+
+  _onRoutingEventUpdateCurrentLocation(
+      RoutingEventUpdateCurrentLocation event, Emitter<RoutingState> emit) {
+    emit(RoutingStateUpdateCurrentLocation(state, event.currentLocation));
+  }
+
   _onRoutingEventNativeRouteBuilt(
       RoutingEventNativeRouteBuilt event, Emitter<RoutingState> emit) {
     emit(RoutingStateNativeRouteBuilt(state, event.directionRoute));

@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_map/features/map_screen/maps_screen.dart';
 import 'package:vietmap_map/features/pick_address_screen/pick_address_screen.dart';
 import 'package:vietmap_map/features/routing_screen/models/routing_header_model.dart';
@@ -26,7 +28,12 @@ final route = GoRouter(
     ),
     GoRoute(
       path: Routes.searchScreen,
-      builder: (context, state) => const SearchScreen(),
+      builder: (context, state) {
+        var defaultLocation = state.extra as LatLng?;
+        return SearchScreen(
+          defaultLocation: defaultLocation,
+        );
+      },
       name: Routes.searchScreen,
     ),
     GoRoute(

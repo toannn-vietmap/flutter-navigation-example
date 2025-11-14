@@ -21,6 +21,8 @@ class _SearchAddressState extends State<SearchAddress> {
   String? addressText = '';
   @override
   void initState() {
+    debugPrint(
+        'SearchAddress initState called: ${widget.args?.defaultLocation}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       var args = widget.args;
       if (args != null) {
@@ -40,7 +42,10 @@ class _SearchAddressState extends State<SearchAddress> {
       child: Scaffold(
         body: Column(children: [
           SearchAddressHeader(
-              isSearchFromOrigin: isSearchFromOrigin, addressText: addressText),
+            isSearchFromOrigin: isSearchFromOrigin,
+            addressText: addressText,
+            defaultLocation: widget.args?.defaultLocation,
+          ),
           BlocBuilder<MapBloc, MapState>(buildWhen: (previous, current) {
             if (current is MapStateSearchAddressSuccess) {
               return true;

@@ -9,14 +9,18 @@ import '../../../constants/route.dart';
 import '../bloc/bloc.dart';
 
 class RoutingHeader extends StatelessWidget {
-  const RoutingHeader(
-      {super.key,
-      required this.onOriginTapCallback,
-      required this.onDestinationTapCallback,
-      required this.onBackButtonTapCallback});
+  const RoutingHeader({
+    super.key,
+    required this.onOriginTapCallback,
+    required this.onDestinationTapCallback,
+    required this.onBackButtonTapCallback,
+    this.currentLocation,
+  });
+
   final VoidCallback onOriginTapCallback;
   final VoidCallback onDestinationTapCallback;
   final VoidCallback onBackButtonTapCallback;
+  final LatLng? currentLocation;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -122,9 +126,10 @@ class RoutingHeader extends StatelessWidget {
                       onTap: () {
                         onOriginTapCallback();
                         var data = RoutingHeaderModel(
-                            isFromOrigin: true,
-                            addressText:
-                                state.routingParams?.originDescription);
+                          isFromOrigin: true,
+                          addressText: state.routingParams?.originDescription,
+                          defaultLocation: currentLocation,
+                        );
                         context.pushNamed(
                           Routes.searchAddressForRoutingScreen,
                           extra: data,
@@ -160,13 +165,15 @@ class RoutingHeader extends StatelessWidget {
                 children: [
                   Expanded(
                     child: InkWell(
-                      onTap: () async {
+                      onTap: () {
                         onDestinationTapCallback();
                         var data = RoutingHeaderModel(
-                            isFromOrigin: false,
-                            addressText:
-                                state.routingParams?.destinationDescription);
-                        await context.pushNamed(
+                          isFromOrigin: false,
+                          addressText:
+                              state.routingParams?.destinationDescription,
+                          defaultLocation: currentLocation,
+                        );
+                        context.pushNamed(
                           Routes.searchAddressForRoutingScreen,
                           extra: data,
                         );

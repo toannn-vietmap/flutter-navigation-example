@@ -56,6 +56,7 @@ class _RoutingScreenState extends State<RoutingScreen> {
   RouteProgressEvent? routeProgressEvent;
   FocusNode focusNode = FocusNode();
   bool _isRunning = false;
+  Position? currentPosition;
 
   Future<void> initialize() async {
     if (!mounted) return;
@@ -149,6 +150,8 @@ class _RoutingScreenState extends State<RoutingScreen> {
                     )
                   : RoutingHeader(
                       key: const Key("routingHeader"),
+                      currentLocation: LatLng(currentPosition?.latitude ?? 0,
+                          currentPosition?.longitude ?? 0),
                       onOriginTapCallback: () {
                         setState(() {
                           isFromOrigin = true;
@@ -212,6 +215,7 @@ class _RoutingScreenState extends State<RoutingScreen> {
                         }
 
                         var position = await Geolocator.getCurrentPosition();
+
                         if (!mounted) return;
                         routingBloc.add(RoutingEventUpdateRouteParams(
                             originDescription: 'Vị trí của bạn',
@@ -222,9 +226,9 @@ class _RoutingScreenState extends State<RoutingScreen> {
                         if (widget.args != null) {
                           var args = widget.args!;
                           var listWaypoint = <LatLng>[];
-                          var res = await Geolocator.getCurrentPosition();
-                          listWaypoint.add(LatLng(res.toLatLng().latitude,
-                              res.toLatLng().longitude));
+
+                          listWaypoint.add(
+                              LatLng(position.latitude, position.longitude));
 
                           listWaypoint.add(LatLng(args.lat?.toDouble() ?? 0,
                               args.lng?.toDouble() ?? 0));
@@ -251,6 +255,11 @@ class _RoutingScreenState extends State<RoutingScreen> {
                         _navigationController = p0;
                         routingBloc.add(RoutingEventUpdateRouteParams(
                             navigationController: _navigationController));
+                        Geolocator.getCurrentPosition().then((value) {
+                          currentPosition = value;
+                        }).catchError((error) {
+                          debugPrint('Error getting current position: $error');
+                        });
                       },
                       onRouteBuilt: (DirectionRoute p0) {
                         routingBloc.add(
