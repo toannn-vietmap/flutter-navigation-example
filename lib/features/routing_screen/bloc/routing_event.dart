@@ -1,20 +1,23 @@
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/models/direction_route.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/data/models/point_model.dart';
 
 class RoutingEvent {}
 
 class RoutingEventGetDirection extends RoutingEvent {
-  final LatLng from;
-  final LatLng to;
+  final PointModel from;
+  final PointModel to;
   RoutingEventGetDirection({required this.from, required this.to});
 }
 
 class RoutingEventUpdateRouteParams extends RoutingEvent {
-  final LatLng? originPoint;
-  final LatLng? destinationPoint;
-  final String? originDescription;
-  final String? destinationDescription;
+  // final LatLng? originPoint;
+  // final LatLng? destinationPoint;
+  // final String? originDescription;
+  // final String? destinationDescription;
+  final PointModel? originPoint;
+  final PointModel? destinationPoint;
   final VehicleType? vehicleType;
   final MapNavigationViewController? navigationController;
   RoutingEventUpdateRouteParams({
@@ -22,8 +25,6 @@ class RoutingEventUpdateRouteParams extends RoutingEvent {
     this.destinationPoint,
     this.navigationController,
     this.vehicleType,
-    this.originDescription,
-    this.destinationDescription,
   });
 }
 
@@ -44,4 +45,25 @@ class RoutingEventNativeRouteBuilt extends RoutingEvent {
 class RoutingEventUpdateCurrentLocation extends RoutingEvent {
   final LatLng currentLocation;
   RoutingEventUpdateCurrentLocation({required this.currentLocation});
+}
+
+class RoutingEventAddWaypoint extends RoutingEvent {
+  final VietmapAutocompleteModelV4? newPoint;
+  RoutingEventAddWaypoint({this.newPoint});
+}
+
+class RoutingEventRemoveWaypoint extends RoutingEvent {
+  final int index;
+  RoutingEventRemoveWaypoint({required this.index});
+}
+
+class RoutingEventReorderWaypoint extends RoutingEvent {
+  final int oldIndex;
+  final int newIndex;
+  RoutingEventReorderWaypoint({required this.oldIndex, required this.newIndex});
+}
+
+class RoutingEventPickNewWaypoint extends RoutingEvent {
+  final PointModel? newPoint;
+  RoutingEventPickNewWaypoint({this.newPoint});
 }

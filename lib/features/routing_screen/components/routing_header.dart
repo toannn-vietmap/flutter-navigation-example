@@ -23,85 +23,115 @@ class RoutingHeader extends StatelessWidget {
   final LatLng? currentLocation;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 5),
-          SizedBox(
-            height: 100,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Hero(
-                  tag: 'backButton',
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                        onTap: () {
-                          onBackButtonTapCallback();
-                          context
-                              .read<RoutingBloc>()
-                              .add(RoutingEventClearDirection());
-                          context.pop();
-                        },
-                        child: const Icon(Icons.arrow_back_ios_new_rounded,
-                            color: Colors.grey)),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                _buildHorizontalDivider(),
-                const SizedBox(width: 10),
-                _buildSearchBar(context),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Center(
-                      child: InkWell(
-                        onTap: () {
-                          context
-                              .read<RoutingBloc>()
-                              .add(RoutingEventReverseDirection());
-                        },
-                        child: const Icon(Icons.swap_vert_rounded,
-                            color: Colors.grey),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-          BlocBuilder<RoutingBloc, RoutingState>(builder: (_, state) {
-            return Hero(
-              tag: 'actionButton',
+    return BlocBuilder<RoutingBloc, RoutingState>(
+      builder: (context, state) => Container(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black12, blurRadius: 10, offset: Offset(0, 5))
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 5),
+            SizedBox(
+              height: 100,
               child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.from(VehicleType.values.map((e) =>
-                      VehicleButton(
-                          estimatedTime: state
-                                      .routingModel?.paths?.first.time ==
-                                  null
-                              ? null
-                              : '${(state.routingModel!.paths!.first.time! / 60000).round()} phút',
-                          vehicleType: e,
-                          currentVehicleType:
-                              state.routingParams?.vehicle ?? VehicleType.car,
-                          onPressed: () {
-                            context.read<RoutingBloc>().add(
-                                RoutingEventUpdateRouteParams(vehicleType: e));
-                          })))),
-            );
-          }),
-          const SizedBox(height: 10)
-        ],
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Hero(
+                    tag: 'backButton',
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                          onTap: () {
+                            onBackButtonTapCallback();
+                            context
+                                .read<RoutingBloc>()
+                                .add(RoutingEventClearDirection());
+                            context.pop();
+                          },
+                          child: const Icon(Icons.arrow_back_ios_new_rounded,
+                              color: Colors.grey)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  _buildHorizontalDivider(),
+                  const SizedBox(width: 10),
+                  _buildSearchBar(context),
+                  const SizedBox(width: 5),
+                  Column(
+                    mainAxisAlignment: (state.listPoint?.length ?? 0) >= 2
+                        ? MainAxisAlignment.spaceBetween
+                        : MainAxisAlignment.center,
+                    children: [
+                      (state.listPoint?.length ?? 0) >= 2
+                          ? Center(
+                              child: InkWell(
+                                onTap: () {
+                                  context.pushNamed(
+                                      Routes.modifiedAddressScreen,
+                                      extra: {
+                                        'sourceDescription': state
+                                            .routingParams?.originPoint?.description,
+                                        'sourcePoint':
+                                            state.routingParams?.originPoint,
+                                        'destinationDescription': state
+                                            .routingParams
+                                            ?.destinationPoint?.description,
+                                        'destinationPoint': state
+                                            .routingParams?.destinationPoint,
+                                      });
+                                },
+                                child: const Icon(Icons.add_circle_rounded,
+                                    color: Colors.grey),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      Center(
+                        child: InkWell(
+                          onTap: () {
+                            context
+                                .read<RoutingBloc>()
+                                .add(RoutingEventReverseDirection());
+                          },
+                          child: const Icon(Icons.swap_vert_rounded,
+                              color: Colors.grey),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            BlocBuilder<RoutingBloc, RoutingState>(builder: (_, state) {
+              return Hero(
+                tag: 'actionButton',
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.from(VehicleType.values.map((e) =>
+                        VehicleButton(
+                            estimatedTime: state
+                                        .routingModel?.paths?.first.time ==
+                                    null
+                                ? null
+                                : '${(state.routingModel!.paths!.first.time! / 60000).round()} phút',
+                            vehicleType: e,
+                            currentVehicleType:
+                                state.routingParams?.vehicle ?? VehicleType.car,
+                            onPressed: () {
+                              context.read<RoutingBloc>().add(
+                                  RoutingEventUpdateRouteParams(
+                                      vehicleType: e));
+                            })))),
+              );
+            }),
+            const SizedBox(height: 10)
+          ],
+        ),
       ),
     );
   }
@@ -127,8 +157,9 @@ class RoutingHeader extends StatelessWidget {
                         onOriginTapCallback();
                         var data = RoutingHeaderModel(
                           isFromOrigin: true,
-                          addressText: state.routingParams?.originDescription,
+                          addressText: state.routingParams?.originPoint?.description,
                           defaultLocation: currentLocation,
+                          isFromModifiedAddressScreen: false
                         );
                         context.pushNamed(
                           Routes.searchAddressForRoutingScreen,
@@ -140,7 +171,7 @@ class RoutingHeader extends StatelessWidget {
                         decoration: InputDecoration(
                             contentPadding:
                                 const EdgeInsets.only(left: 10, top: -5),
-                            hintText: state.routingParams?.originDescription ??
+                            hintText: state.routingParams?.originPoint?.description ??
                                 'Vị trí của bạn',
                             hintStyle: const TextStyle(color: Colors.grey),
                             border: InputBorder.none),
@@ -170,8 +201,9 @@ class RoutingHeader extends StatelessWidget {
                         var data = RoutingHeaderModel(
                           isFromOrigin: false,
                           addressText:
-                              state.routingParams?.destinationDescription,
+                              state.routingParams?.destinationPoint?.description,
                           defaultLocation: currentLocation,
+                          isFromModifiedAddressScreen: false,
                         );
                         context.pushNamed(
                           Routes.searchAddressForRoutingScreen,
@@ -184,7 +216,7 @@ class RoutingHeader extends StatelessWidget {
                             contentPadding:
                                 const EdgeInsets.only(left: 10, top: -5),
                             hintText:
-                                state.routingParams?.destinationDescription ??
+                                state.routingParams?.destinationPoint?.description ??
                                     'Chọn điểm đến',
                             hintStyle: const TextStyle(color: Colors.grey),
                             border: InputBorder.none),

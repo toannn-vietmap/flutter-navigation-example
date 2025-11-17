@@ -14,6 +14,7 @@ import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 import 'package:vietmap_flutter_navigation/views/navigation_view.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_map/constants/colors.dart';
+import 'package:vietmap_map/data/models/point_model.dart';
 import 'package:vietmap_map/extension/latlng_extension.dart';
 import 'package:vietmap_map/features/routing_screen/components/routing_header.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
@@ -99,15 +100,18 @@ class _RoutingScreenState extends State<RoutingScreen> {
           if (state is MapStateGetPlaceDetailSuccess) {
             if (isFromOrigin) {
               routingBloc.add(RoutingEventUpdateRouteParams(
-                  originDescription: state.response.display ?? 'Vị trí của bạn',
-                  originPoint: LatLng(state.response.lat?.toDouble() ?? 0,
-                      state.response.lng?.toDouble() ?? 0)));
+                  originPoint: PointModel(
+                      location: LatLng(state.response.lat?.toDouble() ?? 0,
+                          state.response.lng?.toDouble() ?? 0),
+                      description:
+                          state.response.display ?? 'Vị trí của bạn')));
             } else {
               routingBloc.add(RoutingEventUpdateRouteParams(
-                  destinationDescription:
-                      state.response.display ?? 'Vị trí đã chọn',
-                  destinationPoint: LatLng(state.response.lat?.toDouble() ?? 0,
-                      state.response.lng?.toDouble() ?? 0)));
+                  destinationPoint: PointModel(
+                      location: LatLng(state.response.lat?.toDouble() ?? 0,
+                          state.response.lng?.toDouble() ?? 0),
+                      description:
+                          state.response.display ?? 'Vị trí đã chọn')));
             }
           }
         },
@@ -207,20 +211,21 @@ class _RoutingScreenState extends State<RoutingScreen> {
                         if (widget.args != null) {
                           var args = widget.args!;
                           routingBloc.add(RoutingEventUpdateRouteParams(
-                              destinationDescription:
-                                  args.getAddress() ?? 'Vị trí đã chọn',
-                              destinationPoint: LatLng(
-                                  args.lat?.toDouble() ?? 0,
-                                  args.lng?.toDouble() ?? 0)));
+                              destinationPoint: PointModel(
+                                  location: LatLng(args.lat?.toDouble() ?? 0,
+                                      args.lng?.toDouble() ?? 0),
+                                  description:
+                                      args.getAddress() ?? 'Vị trí đã chọn')));
                         }
 
                         var position = await Geolocator.getCurrentPosition();
 
                         if (!mounted) return;
                         routingBloc.add(RoutingEventUpdateRouteParams(
-                            originDescription: 'Vị trí của bạn',
-                            originPoint:
-                                LatLng(position.latitude, position.longitude)));
+                            originPoint: PointModel(
+                                location: LatLng(
+                                    position.latitude, position.longitude),
+                                description: 'Vị trí của bạn')));
 
                         EasyLoading.show();
                         if (widget.args != null) {

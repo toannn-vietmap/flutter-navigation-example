@@ -12,11 +12,12 @@ class RoutingState extends Equatable {
   final List<LatLng>? listPoint;
   final DirectionRoute? directionRoute;
   final VietMapRoutingParamsImpl? routingParams;
-  const RoutingState(
-      {this.routingParams,
-      this.directionRoute,
-      this.routingModel,
-      this.listPoint});
+  const RoutingState({
+    this.routingParams,
+    this.directionRoute,
+    this.routingModel,
+    this.listPoint,
+  });
 
   @override
   List<Object?> get props =>
@@ -96,6 +97,20 @@ class RoutingStateNativeRouteBuilt extends RoutingState {
             routingModel: state.routingModel,
             listPoint: state.listPoint,
             directionRoute: response);
+  @override
+  List<Object?> get props =>
+      [routingModel, routingParams, listPoint, directionRoute];
+}
+
+class RoutingStateAddMoreAddress extends RoutingState {
+  final List<LatLng> updatedListPoint;
+  RoutingStateAddMoreAddress(RoutingState state, this.updatedListPoint)
+      : super(
+          routingParams: state.routingParams,
+          routingModel: state.routingModel,
+          listPoint: updatedListPoint,
+          directionRoute: state.directionRoute,
+        );
   @override
   List<Object?> get props =>
       [routingModel, routingParams, listPoint, directionRoute];

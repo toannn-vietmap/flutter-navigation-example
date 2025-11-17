@@ -1,9 +1,14 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:talker/talker.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
+import 'package:vietmap_map/data/models/point_model.dart';
+import 'package:vietmap_map/data/models/vietmap_place_model_impl.dart';
+import 'package:vietmap_map/domain/repository/history_search_repositories.dart';
+import 'package:vietmap_map/domain/usecase/add_history_search_usecase.dart';
 import 'package:vietmap_map/extension/driving_profile_extension.dart';
 import 'package:vietmap_map/extension/latlng_extension.dart';
 import 'package:vietmap_map/features/routing_screen/bloc/routing_event.dart';
@@ -21,6 +26,76 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     on<RoutingEventReverseDirection>(_onRoutingEventReverseDirection);
     on<RoutingEventNativeRouteBuilt>(_onRoutingEventNativeRouteBuilt);
     on<RoutingEventUpdateCurrentLocation>(_onRoutingEventUpdateCurrentLocation);
+    on<RoutingEventAddWaypoint>(_onRoutingEventAddWaypoint);
+    on<RoutingEventPickNewWaypoint>(_onRoutingEventPickNewWaypoint);
+  }
+
+  _onRoutingEventPickNewWaypoint(
+      RoutingEventPickNewWaypoint event, Emitter<RoutingState> emit) async {
+    if (event.newPoint != null) {
+      var params = state.routingParams;
+      params?.waypoints = [
+        ...(params.waypoints ?? []),
+        event.newPoint!,
+      ];
+      params?.destinationPoint = event.newPoint;
+      params?.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      emit(
+        RoutingState(
+          listPoint: params?.points,
+          routingModel: VietMapRoutingModel.copyWith(state.routingModel),
+          routingParams: params,
+        ),
+      );
+    }
+  }
+
+  _onRoutingEventAddWaypoint(
+      RoutingEventAddWaypoint event, Emitter<RoutingState> emit) async {
+    emit(RoutingStateLoading(state));
+    EasyLoading.show();
+    AddHistorySearchUseCase(HistorySearchRepositories()).call(event.newPoint!);
+    Either<Failure, VietmapPlaceModel>? response;
+    await Future.wait(
+      [
+        Vietmap.placeV4(event.newPoint!.refId!).then((value) {
+          response = value;
+        }),
+        // _vietMapAutomotivePlugin.selectSearchResult(
+        //   refId: event.model.refId ?? '',
+        // ),
+      ],
+    );
+    VietmapPlaceModelImpl? placeModel;
+    await EasyLoading.dismiss();
+    response?.fold((l) => null, (r) {
+      debugPrint('Place detail: ${r.toJson()}');
+      placeModel = VietmapPlaceModelImpl.fromJson(r.toJson());
+      placeModel?.newLocation = event.newPoint!.dataNew;
+    });
+    if (placeModel != null) {
+      var newPoint = PointModel(
+        description: placeModel!.display,
+        location: LatLng(
+          placeModel!.lat!.toDouble(),
+          placeModel!.lng!.toDouble(),
+        ),
+      );
+      var params = state.routingParams;
+      params?.waypoints = [
+        ...(params.waypoints ?? []),
+        newPoint,
+      ];
+      params?.destinationPoint = newPoint;
+      params?.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      emit(
+        RoutingState(
+          listPoint: params?.points,
+          routingModel: VietMapRoutingModel.copyWith(state.routingModel),
+          routingParams: params,
+        ),
+      );
+    }
   }
 
   _onRoutingEventUpdateCurrentLocation(
@@ -38,13 +113,13 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     var params = state.routingParams;
     if (params != null) {
       var temp = params.originPoint;
-      var tempDes = params.originDescription;
+      var tempDes = params.originPoint?.description;
       var tempDesPoint = params.destinationPoint;
-      var tempDesDes = params.destinationDescription;
+      var tempDesDes = params.destinationPoint?.description;
       params.originPoint = tempDesPoint;
-      params.originDescription = tempDesDes;
+      params.originPoint?.description = tempDesDes;
       params.destinationPoint = temp;
-      params.destinationDescription = tempDes;
+      params.destinationPoint?.description = tempDes;
 
       emit(
         RoutingState(
@@ -57,9 +132,10 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
         //     from: params.originPoint!, to: params.destinationPoint!));
         if (params.navigationController != null) {
           params.navigationController!.buildRoute(waypoints: [
-            LatLng(params.originPoint!.latitude, params.originPoint!.longitude),
-            LatLng(params.destinationPoint!.latitude,
-                params.destinationPoint!.longitude)
+            LatLng(params.originPoint!.location.latitude,
+                params.originPoint!.location.longitude),
+            LatLng(params.destinationPoint!.location.latitude,
+                params.destinationPoint!.location.longitude)
           ], profile: params.vehicle.convertToDrivingProfile());
         }
       }
@@ -84,45 +160,48 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     params.vehicle = event.vehicleType ?? params.vehicle;
     params.destinationPoint = event.destinationPoint ?? params.destinationPoint;
     params.originPoint = event.originPoint ?? params.originPoint;
-    params.originDescription =
-        event.originDescription ?? params.originDescription;
-    params.destinationDescription =
-        event.destinationDescription ?? params.destinationDescription;
     params.navigationController =
         event.navigationController ?? params.navigationController;
 
     try {
       if (params.originPoint == null) {
-        params.originDescription = 'Vị trí của bạn';
-        params.originPoint = (await Geolocator.getCurrentPosition()).toLatLng();
+        params.originPoint?.description = 'Vị trí của bạn';
+        params.originPoint?.location =
+            (await Geolocator.getCurrentPosition()).toLatLng();
       }
     } catch (e) {
       talker.handle(e.toString());
     }
     if (params.originPoint != null && params.destinationPoint != null) {
-      params.points = [
-        params.originPoint!,
-        ...state.routingParams?.waypoints ?? [],
-        params.destinationPoint!
+      params.waypoints = [
+        params.waypoints?.first ?? params.originPoint!,
+        ...params.waypoints?.sublist(1, (params.waypoints?.length ?? 2) - 1) ??
+            [],
+        params.waypoints?.last ?? params.destinationPoint!,
       ];
-      emit(RoutingState(
-          listPoint: <LatLng>[...(state.listPoint ?? [])],
+      params.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      emit(
+        RoutingState(
+          listPoint: params.points,
           routingModel: VietMapRoutingModel.copyWith(state.routingModel),
-          routingParams: params));
+          routingParams: params,
+        ),
+      );
       add(RoutingEventGetDirection(
           from: params.originPoint!, to: params.destinationPoint!));
       if (params.navigationController != null) {
         EasyLoading.show();
         Talker().debug(params.vehicle.convertToDrivingProfile());
         Talker().debug(
-            ('${params.originPoint!.latitude}--o--${params.originPoint!.longitude}'));
+            ('${params.originPoint!.location.latitude}--o--${params.originPoint!.location.longitude}'));
         Talker().debug(
-            ('${params.destinationPoint!.latitude}--d--${params.destinationPoint!.longitude}'));
+            ('${params.destinationPoint!.location.latitude}--d--${params.destinationPoint!.location.longitude}'));
         params.navigationController!.buildRoute(
           waypoints: [
-            LatLng(params.originPoint!.latitude, params.originPoint!.longitude),
-            LatLng(params.destinationPoint!.latitude,
-                params.destinationPoint!.longitude)
+            LatLng(params.originPoint!.location.latitude,
+                params.originPoint!.location.longitude),
+            LatLng(params.destinationPoint!.location.latitude,
+                params.destinationPoint!.location.longitude),
           ],
           profile: params.vehicle.convertToDrivingProfile(),
         );
