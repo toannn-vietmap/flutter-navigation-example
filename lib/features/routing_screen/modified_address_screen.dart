@@ -32,7 +32,7 @@ class _ModifiedAddressScreen extends State<ModifiedAddressScreen> {
 
   double _calculateContainerHeight(RoutingState state) {
     final itemCount = (state.routingParams?.waypoints?.length ?? 0) + 1;
-    const double itemHeight = 30.0; // Chiều cao mỗi item
+    const double itemHeight = 35.0; // Chiều cao mỗi item
     const double verticalPadding = 5.0; // Padding trên dưới mỗi item
     
     // Tính chiều cao cần thiết cho số item hiện tại
@@ -76,39 +76,8 @@ class _ModifiedAddressScreen extends State<ModifiedAddressScreen> {
                                     color: Colors.grey)),
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        // Guide Vertical
-                        Column(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(top: 15),
-                              decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.white),
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                        color: vietmapColor, blurRadius: 10)
-                                  ]),
-                              child: const Icon(
-                                Icons.circle,
-                                size: 10,
-                                color: vietmapColor,
-                              ),
-                            ),
-                            const SizedBox(height: 7),
-                            const Icon(Icons.circle, size: 4),
-                            const SizedBox(height: 7),
-                            const Icon(Icons.circle, size: 4),
-                            const SizedBox(height: 7),
-                            const Icon(Icons.circle, size: 4),
-                            const SizedBox(height: 7),
-                            const Icon(
-                              Icons.location_on_outlined,
-                              size: 20,
-                              color: Colors.red,
-                            )
-                          ],
-                        ),
+                        const SizedBox(width: 5),
+                        _buildRouteIndicator(state),
                         const SizedBox(width: 10),
                         Expanded(
                           child: ReorderableListView.builder(
@@ -207,7 +176,7 @@ class _ModifiedAddressScreen extends State<ModifiedAddressScreen> {
         children: [
           Container(
             width: MediaQuery.of(context).size.width * 0.7,
-            height: 30,
+            height: 35,
             decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -235,6 +204,59 @@ class _ModifiedAddressScreen extends State<ModifiedAddressScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRouteIndicator(RoutingState state) {
+    final waypointCount = state.routingParams?.waypoints?.length ?? 0;
+    // Tổng số items trong list = waypoints + điểm đích
+    final totalItems = waypointCount + 1;
+    
+    List<Widget> indicators = [];
+    
+    // Điểm xuất phát (luôn có)
+    indicators.add(
+      Container(
+        margin: const EdgeInsets.only(top: 15),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: const [
+            BoxShadow(color: vietmapColor, blurRadius: 10)
+          ],
+        ),
+        child: const Icon(
+          Icons.circle,
+          size: 10,
+          color: vietmapColor,
+        ),
+      ),
+    );
+    
+    // Tính số dấu chấm cần thiết dựa trên số items
+    // Mỗi item cần khoảng 35px height, trừ đi điểm đầu (25px) và điểm cuối (27px)
+    // Còn lại chia cho spacing giữa các dấu chấm (11px mỗi dot + spacing)
+    final remainingHeight = (totalItems * 35.0) - 25.0 - 27.0;
+    final dotsNeeded = max(1, (remainingHeight / 11.0).round());
+    
+    // Thêm các dấu chấm kết nối
+    for (int i = 0; i < dotsNeeded; i++) {
+      indicators.add(const SizedBox(height: 7));
+      indicators.add(const Icon(Icons.circle, size: 4));
+    }
+    
+    // Thêm SizedBox cuối và điểm đích
+    indicators.add(const SizedBox(height: 7));
+    indicators.add(
+      const Icon(
+        Icons.location_on_outlined,
+        size: 20,
+        color: Colors.red,
+      ),
+    );
+    
+    return Column(
+      children: indicators,
     );
   }
 }

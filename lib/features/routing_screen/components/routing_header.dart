@@ -58,7 +58,7 @@ class RoutingHeader extends StatelessWidget {
                               color: Colors.grey)),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 5),
                   _buildHorizontalDivider(),
                   const SizedBox(width: 10),
                   _buildSearchBar(context),
