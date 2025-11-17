@@ -2,15 +2,20 @@ import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 class RoutingHeaderModel {
   final bool isFromOrigin;
+  final bool isFromModifiedAddressScreen;
   final String? addressText;
   final LatLng? defaultLocation;
 
   RoutingHeaderModel(
-      {required this.isFromOrigin, this.addressText, this.defaultLocation});
+      {required this.isFromOrigin,
+      required this.isFromModifiedAddressScreen,
+      this.addressText,
+      this.defaultLocation});
 
   factory RoutingHeaderModel.fromJson(Map<String, dynamic> json) {
     return RoutingHeaderModel(
       isFromOrigin: json['isFromOrigin'],
+      isFromModifiedAddressScreen: json['isFromModifiedAddressScreen'],
       addressText: json['addressText'],
       defaultLocation: json['defaultLocation'] != null
           ? LatLng(
@@ -31,6 +36,7 @@ class RoutingHeaderModel {
               'longitude': defaultLocation!.longitude,
             }
           : null,
+      'isFromModifiedAddressScreen': isFromModifiedAddressScreen,
     };
   }
 }

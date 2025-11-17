@@ -1,21 +1,18 @@
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/data/models/point_model.dart';
 
 class VietMapRoutingParamsImpl extends VietMapRoutingParams {
   String apiKey;
   String? apiVersion;
-  LatLng? originPoint;
-  String? originDescription;
-  String? destinationDescription;
-  LatLng? destinationPoint;
+  PointModel? originPoint;
+  PointModel? destinationPoint;
   MapNavigationViewController? navigationController;
-  List<LatLng>? waypoints;
+  List<PointModel>? waypoints;
 
   VietMapRoutingParamsImpl({
     required this.apiKey,
-    this.originDescription,
     this.navigationController,
-    this.destinationDescription,
     required this.originPoint,
     required this.destinationPoint,
     super.vehicle,
@@ -23,7 +20,7 @@ class VietMapRoutingParamsImpl extends VietMapRoutingParams {
     super.optimize,
     this.waypoints,
   }) : super(
-          points: waypoints ?? [],
+          points: PointModel.toLatLngList(waypoints) ?? [],
         );
 
   @override
@@ -31,5 +28,18 @@ class VietMapRoutingParamsImpl extends VietMapRoutingParams {
     final map = super.toMap();
     map['api-version'] = apiVersion;
     return map;
+  }
+
+  VietMapRoutingParamsImpl copyWith(VietMapRoutingParamsImpl params) {
+    return VietMapRoutingParamsImpl(
+      apiKey: apiKey,
+      apiVersion: apiVersion,
+      originPoint: params.originPoint ?? originPoint,
+      destinationPoint: params.destinationPoint ?? destinationPoint,
+      vehicle: params.vehicle,
+      optimize: params.optimize,
+      navigationController: params.navigationController ?? navigationController,
+      waypoints: params.waypoints ?? waypoints,
+    );
   }
 }

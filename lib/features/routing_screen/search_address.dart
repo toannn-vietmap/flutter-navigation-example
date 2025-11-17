@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vietmap_map/features/routing_screen/bloc/bloc.dart';
 
 import '../map_screen/bloc/map_bloc.dart';
 import '../map_screen/bloc/map_event.dart';
@@ -45,6 +45,8 @@ class _SearchAddressState extends State<SearchAddress> {
             isSearchFromOrigin: isSearchFromOrigin,
             addressText: addressText,
             defaultLocation: widget.args?.defaultLocation,
+            isFromModifiedAddressScreen:
+                widget.args?.isFromModifiedAddressScreen ?? false,
           ),
           BlocBuilder<MapBloc, MapState>(buildWhen: (previous, current) {
             if (current is MapStateSearchAddressSuccess) {
@@ -59,8 +61,16 @@ class _SearchAddressState extends State<SearchAddress> {
                     itemBuilder: (_, index) {
                       return InkWell(
                         onTap: () {
-                          context.read<MapBloc>().add(
-                              MapEventGetDetailAddress(state.response[index]));
+                          if (widget.args != null &&
+                              widget.args!.isFromModifiedAddressScreen) {
+                            context.read<RoutingBloc>().add(
+                                RoutingEventAddWaypoint(
+                                    newPoint: state.response[index]));
+                          } else {
+                            context.read<MapBloc>().add(
+                                MapEventGetDetailAddress(
+                                    state.response[index]));
+                          }
                           FocusScope.of(context).requestFocus(FocusNode());
                           context.pop();
                         },

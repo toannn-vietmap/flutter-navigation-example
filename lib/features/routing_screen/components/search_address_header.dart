@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vietmap_flutter_navigation/models/marker_widget.dart';
+import 'package:vietmap_map/data/models/point_model.dart';
 
 import '../../../constants/route.dart';
 import '../../../core/debounce.dart';
@@ -15,8 +16,10 @@ class SearchAddressHeader extends StatefulWidget {
       {super.key,
       required this.isSearchFromOrigin,
       this.addressText,
+      this.isFromModifiedAddressScreen = false,
       this.defaultLocation});
   final bool isSearchFromOrigin;
+  final bool isFromModifiedAddressScreen;
   final String? addressText;
   final LatLng? defaultLocation;
   @override
@@ -84,8 +87,10 @@ class _SearchAddressHeaderState extends State<SearchAddressHeader> {
                     onChanged: (value) {
                       if (value.isNotEmpty) {
                         _debounce.run(() {
-                          context.read<MapBloc>().add(MapEventSearchAddress(
-                              address: value, focus: currentPosition));
+                          context.read<MapBloc>().add(
+                                MapEventSearchAddress(
+                                    address: value, focus: currentPosition),
+                              );
                         });
                         setState(() {});
                       }
@@ -144,20 +149,31 @@ class _SearchAddressHeaderState extends State<SearchAddressHeader> {
                   if (location != null) {
                     location = location as VietMapPickerData;
                     if (!context.mounted) return;
-                    context.read<RoutingBloc>().add(
-                        RoutingEventUpdateRouteParams(
+                    if (widget.isFromModifiedAddressScreen) {
+                      context.read<RoutingBloc>().add(
+                          RoutingEventPickNewWaypoint(
+                              newPoint: PointModel(
+                                  location: location.latLng,
+                                  description:
+                                      location.displayText ?? 'Vị trí ghim')));
+                    } else {
+                      context
+                          .read<RoutingBloc>()
+                          .add(RoutingEventUpdateRouteParams(
                             originPoint: widget.isSearchFromOrigin
-                                ? location.latLng
+                                ? PointModel(
+                                    location: location.latLng,
+                                    description:
+                                        location.displayText ?? 'Vị trí ghim')
                                 : null,
                             destinationPoint: !widget.isSearchFromOrigin
-                                ? location.latLng
+                                ? PointModel(
+                                    location: location.latLng,
+                                    description:
+                                        location.displayText ?? 'Vị trí ghim')
                                 : null,
-                            originDescription: widget.isSearchFromOrigin
-                                ? location.displayText ?? 'Vị trí ghim'
-                                : null,
-                            destinationDescription: !widget.isSearchFromOrigin
-                                ? location.displayText ?? 'Vị trí ghim'
-                                : null));
+                          ));
+                    }
                     context.pop();
                   }
                 },
