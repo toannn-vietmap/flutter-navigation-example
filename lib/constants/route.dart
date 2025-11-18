@@ -4,7 +4,6 @@ import 'package:vietmap_map/features/map_screen/maps_screen.dart';
 import 'package:vietmap_map/features/pick_address_screen/pick_address_screen.dart';
 import 'package:vietmap_map/features/routing_screen/models/routing_header_model.dart';
 import 'package:vietmap_map/features/routing_screen/models/routing_params_model.dart';
-import 'package:vietmap_map/features/routing_screen/modified_address_screen.dart';
 import 'package:vietmap_map/features/routing_screen/routing_screen.dart';
 import 'package:vietmap_map/features/search_screen/search_screen.dart';
 import 'package:vietmap_map/features/routing_screen/search_address.dart';
@@ -16,7 +15,6 @@ class Routes {
   static const String pickAddressScreen = '/pickAddressScreen';
   static const String searchAddressForRoutingScreen =
       '/searchAddressForRouting';
-  static const String modifiedAddressScreen = '/modifiedAddressScreen';
 }
 
 final route = GoRouter(
@@ -60,13 +58,6 @@ final route = GoRouter(
         );
       },
       name: Routes.searchAddressForRoutingScreen,
-    ),
-    GoRoute(
-      path: Routes.modifiedAddressScreen,
-      builder: (context, state) {
-        return const ModifiedAddressScreen();
-      },
-      name: Routes.modifiedAddressScreen,
     ),
   ],
 );

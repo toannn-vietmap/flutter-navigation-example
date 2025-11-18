@@ -115,3 +115,18 @@ class RoutingStateAddMoreAddress extends RoutingState {
   List<Object?> get props =>
       [routingModel, routingParams, listPoint, directionRoute];
 }
+
+class RoutingStateSubmitModifyWaypoints extends RoutingState {
+  final bool isModify;
+  RoutingStateSubmitModifyWaypoints({required RoutingState state, required this.isModify})
+      : super(
+          routingParams: state.routingParams,
+          routingModel: state.routingModel,
+          listPoint: state.listPoint,
+          directionRoute: state.directionRoute,
+        );
+
+  @override
+  List<Object?> get props =>
+      [routingModel, routingParams, listPoint, directionRoute, isModify];
+}

@@ -15,7 +15,6 @@ import 'package:vietmap_flutter_navigation/views/navigation_view.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_map/constants/colors.dart';
 import 'package:vietmap_map/data/models/point_model.dart';
-import 'package:vietmap_map/extension/latlng_extension.dart';
 import 'package:vietmap_map/features/routing_screen/components/routing_header.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
 import '../../constants/events.dart';
@@ -171,137 +170,142 @@ class _RoutingScreenState extends State<RoutingScreen> {
               Expanded(
                 child: Stack(
                   children: [
-                    NavigationView(
-                      mapOptions: _navigationOption,
-                      onNewRouteSelected: (DirectionRoute p0) {
-                        routingBloc.add(
-                            RoutingEventNativeRouteBuilt(directionRoute: p0));
-                      },
-                      onMapRendered: () async {
-                        _navigationChannel.setMethodCallHandler(
-                          (call) async {
-                            switch (call.method) {
-                              case Events.stopNavigation:
-                                _onStopNavigation();
-                                break;
-                              case Events.onCancelNavigation:
-                                _onStopNavigation();
-                                break;
+                    BlocBuilder<RoutingBloc, RoutingState>(
+                      builder: (context, state) => NavigationView(
+                        mapOptions: _navigationOption,
+                        onNewRouteSelected: (DirectionRoute p0) {
+                          routingBloc.add(
+                              RoutingEventNativeRouteBuilt(directionRoute: p0));
+                        },
+                        onMapRendered: () async {
+                          _navigationChannel.setMethodCallHandler(
+                            (call) async {
+                              switch (call.method) {
+                                case Events.stopNavigation:
+                                  _onStopNavigation();
+                                  break;
+                                case Events.onCancelNavigation:
+                                  _onStopNavigation();
+                                  break;
 
-                              case Events.onStartNavigation:
-                                await _navigationController?.startNavigation();
+                                case Events.onStartNavigation:
+                                  await _navigationController
+                                      ?.startNavigation();
+                                  setState(() {
+                                    _isRunning = true;
+                                  });
+                                  break;
+                                case Events.onRecenter:
+                                  await _navigationController?.recenter();
+                                  break;
+                                case Events.onOverview:
+                                  await _navigationController?.overview();
+                                  _showRecenterButton();
+                                  break;
+                                case Events.onFinishNavigation:
+                                  await _navigationController
+                                      ?.finishNavigation();
+                                  break;
+                                default:
+                              }
+                            },
+                          );
+                          if (widget.args != null) {
+                            var args = widget.args!;
+                            routingBloc.add(RoutingEventUpdateRouteParams(
+                                destinationPoint: PointModel(
+                                    location: LatLng(args.lat?.toDouble() ?? 0,
+                                        args.lng?.toDouble() ?? 0),
+                                    description: args.getAddress() ??
+                                        'Vị trí đã chọn')));
+                          }
+
+                          var position = await Geolocator.getCurrentPosition();
+
+                          if (!mounted) return;
+                          routingBloc.add(RoutingEventUpdateRouteParams(
+                              originPoint: PointModel(
+                                  location: LatLng(
+                                      position.latitude, position.longitude),
+                                  description: 'Vị trí của bạn')));
+
+                          EasyLoading.show();
+                          if (widget.args != null) {
+                            var args = widget.args!;
+                            var listWaypoint = <LatLng>[];
+
+                            listWaypoint.add(
+                                LatLng(position.latitude, position.longitude));
+
+                            listWaypoint.add(LatLng(args.lat?.toDouble() ?? 0,
+                                args.lng?.toDouble() ?? 0));
+                            if (args.isStartNavigation) {
+                              _navigationController
+                                  ?.buildAndStartNavigation(
+                                      waypoints: listWaypoint,
+                                      profile: DrivingProfile.drivingTraffic)
+                                  .then((value) {
                                 setState(() {
+                                  EasyLoading.dismiss();
                                   _isRunning = true;
                                 });
-                                break;
-                              case Events.onRecenter:
-                                await _navigationController?.recenter();
-                                break;
-                              case Events.onOverview:
-                                await _navigationController?.overview();
-                                _showRecenterButton();
-                                break;
-                              case Events.onFinishNavigation:
-                                await _navigationController?.finishNavigation();
-                                break;
-                              default:
-                            }
-                          },
-                        );
-                        if (widget.args != null) {
-                          var args = widget.args!;
-                          routingBloc.add(RoutingEventUpdateRouteParams(
-                              destinationPoint: PointModel(
-                                  location: LatLng(args.lat?.toDouble() ?? 0,
-                                      args.lng?.toDouble() ?? 0),
-                                  description:
-                                      args.getAddress() ?? 'Vị trí đã chọn')));
-                        }
-
-                        var position = await Geolocator.getCurrentPosition();
-
-                        if (!mounted) return;
-                        routingBloc.add(RoutingEventUpdateRouteParams(
-                            originPoint: PointModel(
-                                location: LatLng(
-                                    position.latitude, position.longitude),
-                                description: 'Vị trí của bạn')));
-
-                        EasyLoading.show();
-                        if (widget.args != null) {
-                          var args = widget.args!;
-                          var listWaypoint = <LatLng>[];
-
-                          listWaypoint.add(
-                              LatLng(position.latitude, position.longitude));
-
-                          listWaypoint.add(LatLng(args.lat?.toDouble() ?? 0,
-                              args.lng?.toDouble() ?? 0));
-                          if (args.isStartNavigation) {
-                            _navigationController
-                                ?.buildAndStartNavigation(
-                                    waypoints: listWaypoint,
-                                    profile: DrivingProfile.drivingTraffic)
-                                .then((value) {
-                              setState(() {
-                                EasyLoading.dismiss();
-                                _isRunning = true;
                               });
-                            });
-                          } else {
-                            _navigationController?.buildRoute(
-                                waypoints: listWaypoint,
-                                profile: DrivingProfile.drivingTraffic);
+                            } else {
+                              _navigationController?.buildRoute(
+                                  waypoints: listWaypoint,
+                                  profile: DrivingProfile.drivingTraffic);
+                            }
                           }
-                        }
-                        EasyLoading.dismiss();
-                      },
-                      onMapCreated: (p0) async {
-                        _navigationController = p0;
-                        routingBloc.add(RoutingEventUpdateRouteParams(
-                            navigationController: _navigationController));
-                        Geolocator.getCurrentPosition().then((value) {
-                          currentPosition = value;
-                        }).catchError((error) {
-                          debugPrint('Error getting current position: $error');
-                        });
-                      },
-                      onRouteBuilt: (DirectionRoute p0) {
-                        routingBloc.add(
-                            RoutingEventNativeRouteBuilt(directionRoute: p0));
-                        setState(() {
                           EasyLoading.dismiss();
-                        });
-                      },
-                      onMapMove: () => _showRecenterButton(),
-                      onRouteProgressChange:
-                          (RouteProgressEvent routeProgressEvent) {
-                        if (!mounted) return;
-                        setState(() {
-                          this.routeProgressEvent = routeProgressEvent;
-                        });
-                      },
-                      onArrival: () {
-                        showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (_) => AlertDialog(
-                                  title: const Text('Thông báo'),
-                                  content: const Text(
-                                    'Bạn đã đến nơi',
-                                    style: TextStyle(),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          context.pop();
-                                          context.pop();
-                                        },
-                                        child: const Text('OK'))
-                                  ],
-                                ));
-                      },
+                        },
+                        onMapCreated: (p0) async {
+                          _navigationController = p0;
+                          routingBloc.add(RoutingEventUpdateRouteParams(
+                              navigationController: _navigationController));
+                          Geolocator.getCurrentPosition().then((value) {
+                            currentPosition = value;
+                          }).catchError((error) {
+                            debugPrint(
+                                'Error getting current position: $error');
+                          });
+                        },
+                        onRouteBuilt: (DirectionRoute p0) {
+                          routingBloc.add(
+                              RoutingEventNativeRouteBuilt(directionRoute: p0));
+                          setState(() {
+                            EasyLoading.dismiss();
+                          });
+                        },
+                        onMapMove: () => _showRecenterButton(),
+                        onRouteProgressChange:
+                            (RouteProgressEvent routeProgressEvent) {
+                          if (!mounted) return;
+                          setState(() {
+                            this.routeProgressEvent = routeProgressEvent;
+                          });
+                        },
+                        onArrival: () {
+                          showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                    title: const Text('Thông báo'),
+                                    content: const Text(
+                                      'Bạn đã đến nơi',
+                                      style: TextStyle(),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () {
+                                            context.pop();
+                                            context.pop();
+                                          },
+                                          child: const Text('OK'))
+                                    ],
+                                  ));
+                        },
+                      ),
                     ),
                     _isRunning
                         ? Positioned(

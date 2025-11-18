@@ -30,6 +30,14 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     on<RoutingEventPickNewWaypoint>(_onRoutingEventPickNewWaypoint);
     on<RoutingEventRemoveWaypoint>(_onRoutingEventRemoveWaypoint);
     on<RoutingEventReorderWaypoint>(_onRoutingEventReorderWaypoint);
+    on<RoutingEventSubmitModifyWaypoints>(_onRoutingEventSubmitModifyWaypoints);
+  }
+
+  _onRoutingEventSubmitModifyWaypoints(
+      RoutingEventSubmitModifyWaypoints event, Emitter<RoutingState> emit) {
+    debugPrint('Submit modify waypoints: ${event.isModify}');
+    emit(RoutingStateSubmitModifyWaypoints(
+        isModify: event.isModify, state: state));
   }
 
   _onRoutingEventReorderWaypoint(
@@ -283,12 +291,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
         Talker().debug(
             ('${params.destinationPoint!.location.latitude}--d--${params.destinationPoint!.location.longitude}'));
         params.navigationController!.buildRoute(
-          waypoints: [
-            LatLng(params.originPoint!.location.latitude,
-                params.originPoint!.location.longitude),
-            LatLng(params.destinationPoint!.location.latitude,
-                params.destinationPoint!.location.longitude),
-          ],
+          waypoints: params.points,
           profile: params.vehicle.convertToDrivingProfile(),
         );
       }
