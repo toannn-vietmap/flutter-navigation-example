@@ -77,3 +77,8 @@ class RoutingEventPickNewWaypoint extends RoutingEvent {
   RoutingEventPickNewWaypoint(
       {this.newPoint, this.isExistedWaypoints, this.indexWaypoint});
 }
+
+class RoutingEventSubmitModifyWaypoints extends RoutingEvent {
+  final bool isModify;
+  RoutingEventSubmitModifyWaypoints({required this.isModify});
+}
