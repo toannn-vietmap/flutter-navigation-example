@@ -45,8 +45,8 @@ class _SearchAddressState extends State<SearchAddress> {
             isSearchFromOrigin: isSearchFromOrigin,
             addressText: addressText,
             defaultLocation: widget.args?.defaultLocation,
-            isFromModifiedAddressScreen:
-                widget.args?.isFromModifiedAddressScreen ?? false,
+            isEditingWaypoints: widget.args?.isEditingWaypoints ?? false,
+            indexWaypoint: widget.args?.indexWaypoint,
           ),
           BlocBuilder<MapBloc, MapState>(buildWhen: (previous, current) {
             if (current is MapStateSearchAddressSuccess) {
@@ -62,10 +62,15 @@ class _SearchAddressState extends State<SearchAddress> {
                       return InkWell(
                         onTap: () {
                           if (widget.args != null &&
-                              widget.args!.isFromModifiedAddressScreen) {
-                            context.read<RoutingBloc>().add(
-                                RoutingEventAddWaypoint(
-                                    newPoint: state.response[index]));
+                              widget.args!.isEditingWaypoints) {
+                            context
+                                .read<RoutingBloc>()
+                                .add(RoutingEventAddWaypoint(
+                                  newPoint: state.response[index],
+                                  isExistedWaypoints:
+                                      widget.args!.indexWaypoint != null,
+                                  indexWaypoint: widget.args!.indexWaypoint,
+                                ));
                           } else {
                             context.read<MapBloc>().add(
                                 MapEventGetDetailAddress(

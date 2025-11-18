@@ -12,16 +12,19 @@ import '../../map_screen/bloc/map_event.dart';
 import '../bloc/bloc.dart';
 
 class SearchAddressHeader extends StatefulWidget {
-  const SearchAddressHeader(
-      {super.key,
-      required this.isSearchFromOrigin,
-      this.addressText,
-      this.isFromModifiedAddressScreen = false,
-      this.defaultLocation});
+  const SearchAddressHeader({
+    super.key,
+    required this.isSearchFromOrigin,
+    this.addressText,
+    this.isEditingWaypoints = false,
+    this.defaultLocation,
+    this.indexWaypoint,
+  });
   final bool isSearchFromOrigin;
-  final bool isFromModifiedAddressScreen;
+  final bool isEditingWaypoints;
   final String? addressText;
   final LatLng? defaultLocation;
+  final int? indexWaypoint;
   @override
   State<SearchAddressHeader> createState() => _SearchAddressHeaderState();
 }
@@ -149,13 +152,17 @@ class _SearchAddressHeaderState extends State<SearchAddressHeader> {
                   if (location != null) {
                     location = location as VietMapPickerData;
                     if (!context.mounted) return;
-                    if (widget.isFromModifiedAddressScreen) {
-                      context.read<RoutingBloc>().add(
-                          RoutingEventPickNewWaypoint(
-                              newPoint: PointModel(
-                                  location: location.latLng,
-                                  description:
-                                      location.displayText ?? 'Vị trí ghim')));
+                    if (widget.isEditingWaypoints) {
+                      context
+                          .read<RoutingBloc>()
+                          .add(RoutingEventPickNewWaypoint(
+                            newPoint: PointModel(
+                                location: location.latLng,
+                                description:
+                                    location.displayText ?? 'Vị trí ghim'),
+                            indexWaypoint: widget.indexWaypoint,
+                            isExistedWaypoints: widget.indexWaypoint != null,
+                          ));
                     } else {
                       context
                           .read<RoutingBloc>()

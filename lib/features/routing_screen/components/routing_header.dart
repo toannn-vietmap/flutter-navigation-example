@@ -75,13 +75,14 @@ class RoutingHeader extends StatelessWidget {
                                   context.pushNamed(
                                       Routes.modifiedAddressScreen,
                                       extra: {
-                                        'sourceDescription': state
-                                            .routingParams?.originPoint?.description,
+                                        'sourceDescription': state.routingParams
+                                            ?.originPoint?.description,
                                         'sourcePoint':
                                             state.routingParams?.originPoint,
                                         'destinationDescription': state
                                             .routingParams
-                                            ?.destinationPoint?.description,
+                                            ?.destinationPoint
+                                            ?.description,
                                         'destinationPoint': state
                                             .routingParams?.destinationPoint,
                                       });
@@ -156,11 +157,11 @@ class RoutingHeader extends StatelessWidget {
                       onTap: () {
                         onOriginTapCallback();
                         var data = RoutingHeaderModel(
-                          isFromOrigin: true,
-                          addressText: state.routingParams?.originPoint?.description,
-                          defaultLocation: currentLocation,
-                          isFromModifiedAddressScreen: false
-                        );
+                            isFromOrigin: true,
+                            addressText:
+                                state.routingParams?.originPoint?.description,
+                            defaultLocation: currentLocation,
+                            isEditingWaypoints: false);
                         context.pushNamed(
                           Routes.searchAddressForRoutingScreen,
                           extra: data,
@@ -171,8 +172,9 @@ class RoutingHeader extends StatelessWidget {
                         decoration: InputDecoration(
                             contentPadding:
                                 const EdgeInsets.only(left: 10, top: -5),
-                            hintText: state.routingParams?.originPoint?.description ??
-                                'Vị trí của bạn',
+                            hintText:
+                                state.routingParams?.originPoint?.description ??
+                                    'Vị trí của bạn',
                             hintStyle: const TextStyle(color: Colors.grey),
                             border: InputBorder.none),
                       ),
@@ -200,10 +202,10 @@ class RoutingHeader extends StatelessWidget {
                         onDestinationTapCallback();
                         var data = RoutingHeaderModel(
                           isFromOrigin: false,
-                          addressText:
-                              state.routingParams?.destinationPoint?.description,
+                          addressText: state
+                              .routingParams?.destinationPoint?.description,
                           defaultLocation: currentLocation,
-                          isFromModifiedAddressScreen: false,
+                          isEditingWaypoints: false,
                         );
                         context.pushNamed(
                           Routes.searchAddressForRoutingScreen,
@@ -215,9 +217,9 @@ class RoutingHeader extends StatelessWidget {
                         decoration: InputDecoration(
                             contentPadding:
                                 const EdgeInsets.only(left: 10, top: -5),
-                            hintText:
-                                state.routingParams?.destinationPoint?.description ??
-                                    'Chọn điểm đến',
+                            hintText: state.routingParams?.destinationPoint
+                                    ?.description ??
+                                'Chọn điểm đến',
                             hintStyle: const TextStyle(color: Colors.grey),
                             border: InputBorder.none),
                       ),
