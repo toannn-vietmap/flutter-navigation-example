@@ -49,7 +49,12 @@ class RoutingEventUpdateCurrentLocation extends RoutingEvent {
 
 class RoutingEventAddWaypoint extends RoutingEvent {
   final VietmapAutocompleteModelV4? newPoint;
-  RoutingEventAddWaypoint({this.newPoint});
+  // use for case change address of existed waypoint
+  final bool? isExistedWaypoints;
+  // required if isExistedWaypoints is true
+  final int? indexWaypoint;
+  RoutingEventAddWaypoint(
+      {this.newPoint, this.isExistedWaypoints, this.indexWaypoint});
 }
 
 class RoutingEventRemoveWaypoint extends RoutingEvent {
@@ -65,5 +70,10 @@ class RoutingEventReorderWaypoint extends RoutingEvent {
 
 class RoutingEventPickNewWaypoint extends RoutingEvent {
   final PointModel? newPoint;
-  RoutingEventPickNewWaypoint({this.newPoint});
+  // use for case change address of existed waypoint
+  final bool? isExistedWaypoints;
+  // required if isExistedWaypoints is true
+  final int? indexWaypoint;
+  RoutingEventPickNewWaypoint(
+      {this.newPoint, this.isExistedWaypoints, this.indexWaypoint});
 }

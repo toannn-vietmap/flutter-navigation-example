@@ -28,18 +28,94 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     on<RoutingEventUpdateCurrentLocation>(_onRoutingEventUpdateCurrentLocation);
     on<RoutingEventAddWaypoint>(_onRoutingEventAddWaypoint);
     on<RoutingEventPickNewWaypoint>(_onRoutingEventPickNewWaypoint);
+    on<RoutingEventRemoveWaypoint>(_onRoutingEventRemoveWaypoint);
+    on<RoutingEventReorderWaypoint>(_onRoutingEventReorderWaypoint);
+  }
+
+  _onRoutingEventReorderWaypoint(
+      RoutingEventReorderWaypoint event, Emitter<RoutingState> emit) async {
+    var params = state.routingParams;
+    debugPrint('old index: ${event.oldIndex}, new index: ${event.newIndex}');
+    debugPrint(
+        'Before Reorder waypoints: ${params?.waypoints?.toList().toString()}');
+
+    if (params != null && params.waypoints != null) {
+      final waypointCount = params.waypoints!.length;
+
+      int adjustedNewIndex = event.newIndex;
+      if (event.newIndex >= waypointCount) {
+        adjustedNewIndex = waypointCount - 1;
+      }
+
+      if (event.oldIndex >= waypointCount) {
+        debugPrint('Invalid oldIndex: ${event.oldIndex}');
+        return;
+      }
+
+      if (adjustedNewIndex > event.oldIndex) {
+        adjustedNewIndex -= 1;
+      }
+
+      final item = params.waypoints!.removeAt(event.oldIndex);
+      params.waypoints!.insert(adjustedNewIndex, item);
+
+      params.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      debugPrint(
+          'After Reorder waypoints: ${params.waypoints?.toList().toString()}');
+
+      await params.navigationController?.buildRoute(
+          waypoints: params.points,
+          profile: params.vehicle.convertToDrivingProfile());
+      emit(
+        RoutingState(
+          listPoint: params.points,
+          routingModel: VietMapRoutingModel.copyWith(state.routingModel),
+          routingParams: params,
+        ),
+      );
+    }
+  }
+
+  _onRoutingEventRemoveWaypoint(
+      RoutingEventRemoveWaypoint event, Emitter<RoutingState> emit) async {
+    var params = state.routingParams;
+    if (params != null &&
+        params.waypoints != null &&
+        params.waypoints!.length > event.index) {
+      params.waypoints!.removeAt(event.index);
+      params.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      await params.navigationController?.buildRoute(
+          waypoints: params.points,
+          profile: params.vehicle.convertToDrivingProfile());
+      emit(
+        RoutingState(
+          listPoint: params.points,
+          routingModel: VietMapRoutingModel.copyWith(state.routingModel),
+          routingParams: params,
+        ),
+      );
+    }
   }
 
   _onRoutingEventPickNewWaypoint(
       RoutingEventPickNewWaypoint event, Emitter<RoutingState> emit) async {
     if (event.newPoint != null) {
       var params = state.routingParams;
-      params?.waypoints = [
-        ...(params.waypoints ?? []),
-        event.newPoint!,
-      ];
+      if (event.isExistedWaypoints != null &&
+          event.isExistedWaypoints! &&
+          event.indexWaypoint != null) {
+        params?.waypoints?[event.indexWaypoint!] = event.newPoint!;
+      } else {
+        params?.waypoints = [
+          ...(params.waypoints ?? []),
+          event.newPoint!,
+        ];
+      }
       params?.destinationPoint = event.newPoint;
       params?.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      await params?.navigationController?.buildRoute(
+          waypoints: params.points,
+          profile: params.vehicle.convertToDrivingProfile());
       emit(
         RoutingState(
           listPoint: params?.points,
@@ -73,21 +149,31 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       placeModel = VietmapPlaceModelImpl.fromJson(r.toJson());
       placeModel?.newLocation = event.newPoint!.dataNew;
     });
+    debugPrint('Place model: ${placeModel?.toJson()}');
     if (placeModel != null) {
       var newPoint = PointModel(
-        description: placeModel!.display,
+        description: placeModel!.getFullName(),
         location: LatLng(
           placeModel!.lat!.toDouble(),
           placeModel!.lng!.toDouble(),
         ),
       );
       var params = state.routingParams;
-      params?.waypoints = [
-        ...(params.waypoints ?? []),
-        newPoint,
-      ];
+      if (event.isExistedWaypoints != null &&
+          event.isExistedWaypoints! &&
+          event.indexWaypoint != null) {
+        params?.waypoints?[event.indexWaypoint!] = newPoint;
+      } else {
+        params?.waypoints = [
+          ...(params.waypoints ?? []),
+          newPoint,
+        ];
+      }
       params?.destinationPoint = newPoint;
       params?.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      await params?.navigationController?.buildRoute(
+          waypoints: params.points,
+          profile: params.vehicle.convertToDrivingProfile());
       emit(
         RoutingState(
           listPoint: params?.points,
