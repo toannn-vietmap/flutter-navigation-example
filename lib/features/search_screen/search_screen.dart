@@ -11,7 +11,6 @@ import 'package:vietmap_map/di/app_context.dart';
 import 'package:vietmap_map/features/search_screen/components/autocomplete_response_item.dart';
 import 'package:vietmap_map/features/search_screen/components/item_with_entry_points.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
-import 'package:vietmap_map/utils/location_util.dart';
 
 import '../map_screen/bloc/map_bloc.dart';
 import '../map_screen/bloc/map_event.dart';

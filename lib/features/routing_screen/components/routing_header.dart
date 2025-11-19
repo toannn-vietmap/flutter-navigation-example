@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/features/routing_screen/components/routing_header_component.dart';
 import 'package:vietmap_map/features/routing_screen/components/vehicle_button.dart';
-import 'package:vietmap_map/features/routing_screen/models/routing_header_model.dart';
-import 'package:vietmap_map/features/routing_screen/components/modified_address_header.dart';
+import 'package:vietmap_map/features/routing_screen/components/modified_header_component.dart';
 
-import '../../../constants/colors.dart';
-import '../../../constants/route.dart';
 import '../bloc/bloc.dart';
 
 class RoutingHeader extends StatefulWidget {
@@ -54,73 +51,12 @@ class _RoutingHeaderState extends State<RoutingHeader> {
           children: [
             const SizedBox(height: 5),
             (isModifyingWaypoints)
-                ? const ModifiedAddressScreen()
-                : BlocBuilder<RoutingBloc, RoutingState>(
-                    builder: (context, state) => SizedBox(
-                      height: 100,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Hero(
-                            tag: 'backButton',
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: InkWell(
-                                  onTap: () {
-                                    widget.onBackButtonTapCallback();
-                                    context
-                                        .read<RoutingBloc>()
-                                        .add(RoutingEventClearDirection());
-                                    context.pop();
-                                  },
-                                  child: const Icon(
-                                      Icons.arrow_back_ios_new_rounded,
-                                      color: Colors.grey)),
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          _buildHorizontalDivider(),
-                          const SizedBox(width: 10),
-                          _buildSearchBar(context),
-                          const SizedBox(width: 5),
-                          Column(
-                            mainAxisAlignment:
-                                (state.listPoint?.length ?? 0) >= 2
-                                    ? MainAxisAlignment.spaceBetween
-                                    : MainAxisAlignment.center,
-                            children: [
-                              (state.listPoint?.length ?? 0) >= 2
-                                  ? Center(
-                                      child: InkWell(
-                                        onTap: () {
-                                          context.read<RoutingBloc>().add(
-                                              RoutingEventSubmitModifyWaypoints(
-                                                  isModify: true));
-                                        },
-                                        child: const Icon(
-                                            Icons.add_circle_rounded,
-                                            color: Colors.grey),
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
-                              (state.routingParams?.waypoints?.length ?? 0) > 2
-                                  ? const SizedBox.shrink()
-                                  : Center(
-                                      child: InkWell(
-                                        onTap: () {
-                                          context.read<RoutingBloc>().add(
-                                              RoutingEventReverseDirection());
-                                        },
-                                        child: const Icon(
-                                            Icons.swap_vert_rounded,
-                                            color: Colors.grey),
-                                      ),
-                                    ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
+                ? const ModifiedHeaderComponent()
+                : RoutingHeaderComponent(
+                    onOriginTapCallback: widget.onOriginTapCallback,
+                    onDestinationTapCallback: widget.onDestinationTapCallback,
+                    onBackButtonTapCallback: widget.onBackButtonTapCallback,
+                    currentLocation: widget.currentLocation,
                   ),
             BlocBuilder<RoutingBloc, RoutingState>(builder: (_, state) {
               return Hero(
@@ -144,140 +80,10 @@ class _RoutingHeaderState extends State<RoutingHeader> {
                             })))),
               );
             }),
-            const SizedBox(height: 10)
+            const SizedBox(height: 10),
           ],
         ),
       ),
-    );
-  }
-
-  _buildSearchBar(BuildContext context) {
-    return BlocBuilder<RoutingBloc, RoutingState>(
-      builder: (_, state) => Column(
-        children: [
-          Hero(
-            tag: 'searchBarOrigin',
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.7,
-              height: 45,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey, width: 0.5)),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        widget.onOriginTapCallback();
-                        var data = RoutingHeaderModel(
-                            isFromOrigin: true,
-                            addressText: state
-                                .routingParams?.waypoints?.first.description,
-                            defaultLocation: widget.currentLocation,
-                            isEditingWaypoints: false);
-                        context.pushNamed(
-                          Routes.searchAddressForRoutingScreen,
-                          extra: data,
-                        );
-                      },
-                      child: TextField(
-                        enabled: false,
-                        decoration: InputDecoration(
-                            contentPadding:
-                                const EdgeInsets.only(left: 10, top: -5),
-                            hintText: state.routingParams?.waypoints?.first
-                                    .description ??
-                                'Vị trí của bạn',
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            border: InputBorder.none),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Hero(
-            tag: 'searchBarDestination',
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.7,
-              height: 45,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey, width: 0.5)),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        widget.onDestinationTapCallback();
-                        var data = RoutingHeaderModel(
-                          isFromOrigin: false,
-                          addressText:
-                              state.routingParams?.waypoints?.last.description,
-                          defaultLocation: widget.currentLocation,
-                          isEditingWaypoints: false,
-                        );
-                        context.pushNamed(
-                          Routes.searchAddressForRoutingScreen,
-                          extra: data,
-                        );
-                      },
-                      child: TextField(
-                        enabled: false,
-                        decoration: InputDecoration(
-                            contentPadding:
-                                const EdgeInsets.only(left: 10, top: -5),
-                            hintText: state.routingParams?.waypoints?.last
-                                    .description ??
-                                'Chọn điểm đến',
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            border: InputBorder.none),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  _buildHorizontalDivider() {
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.only(top: 15),
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.white),
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: const [
-                BoxShadow(color: vietmapColor, blurRadius: 10)
-              ]),
-          child: const Icon(
-            Icons.circle,
-            size: 10,
-            color: vietmapColor,
-          ),
-        ),
-        const SizedBox(height: 7),
-        const Icon(Icons.circle, size: 4),
-        const SizedBox(height: 7),
-        const Icon(Icons.circle, size: 4),
-        const SizedBox(height: 7),
-        const Icon(Icons.circle, size: 4),
-        const SizedBox(height: 7),
-        const Icon(
-          Icons.location_on_outlined,
-          size: 20,
-          color: Colors.red,
-        )
-      ],
     );
   }
 }
