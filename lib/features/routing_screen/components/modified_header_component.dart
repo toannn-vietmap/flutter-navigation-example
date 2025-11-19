@@ -3,30 +3,32 @@ import 'package:go_router/go_router.dart';
 import 'package:vietmap_map/constants/colors.dart';
 import 'package:vietmap_map/constants/route.dart';
 import 'package:vietmap_map/features/routing_screen/bloc/bloc.dart';
+import 'package:vietmap_map/features/routing_screen/components/modified_header_item.dart';
 import 'package:vietmap_map/features/routing_screen/models/routing_header_model.dart';
 
-class ModifiedAddressScreen extends StatefulWidget {
-  const ModifiedAddressScreen({
+class ModifiedHeaderComponent extends StatefulWidget {
+  const ModifiedHeaderComponent({
     super.key,
   });
 
   @override
-  State<ModifiedAddressScreen> createState() => _ModifiedAddressScreen();
+  State<ModifiedHeaderComponent> createState() =>
+      _ModifiedHeaderComponentState();
 }
 
-class _ModifiedAddressScreen extends State<ModifiedAddressScreen> {
+class _ModifiedHeaderComponentState extends State<ModifiedHeaderComponent> {
   RoutingBloc get routingBloc => BlocProvider.of<RoutingBloc>(context);
 
   double _calculateContainerHeight(RoutingState state) {
     final itemCount = (state.routingParams?.waypoints?.length ?? 0) + 1;
-    const double itemHeight = 35.0;
+    const double itemHeight = 40.0;
     const double verticalPadding = 5.0;
 
     // calculate total height needed
     final double neededHeight = itemCount * (itemHeight + verticalPadding);
 
     // set a maximum height to avoid overflow
-    const double maxHeight = 15.0 + (4 * (35.0 + 10.0)); // ~230
+    const double maxHeight = 15.0 + (4 * (40.0 + 10.0)); // ~230
 
     return neededHeight > maxHeight ? maxHeight : neededHeight;
   }
@@ -110,7 +112,7 @@ class _ModifiedAddressScreen extends State<ModifiedAddressScreen> {
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 2),
                   key: ValueKey('waypoint$index'),
-                  child: _searchItem(
+                  child: ModifiedHeaderItem(
                     prefixChar: String.fromCharCode(65 + index),
                     hintText: waypoint?.description ?? 'Chọn thêm điểm dừng',
                     onTap: () {
@@ -152,110 +154,6 @@ class _ModifiedAddressScreen extends State<ModifiedAddressScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _searchItem({
-    required String hintText,
-    required VoidCallback onTap,
-    required VoidCallback onDelete,
-    required bool isEndItem,
-    required String heroTag,
-    required String prefixChar,
-  }) {
-    return Hero(
-      tag: heroTag,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          isEndItem
-              ? const SizedBox(
-                  width: 20,
-                )
-              : Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey, width: 0.5),
-                  ),
-                  padding: const EdgeInsets.all(5),
-                  alignment: Alignment.center,
-                  child: Text(
-                    prefixChar,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Container(
-              height: 35,
-              decoration: isEndItem
-                  ? BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: vietmapColor,
-                          width: 1,
-                          style: BorderStyle.solid),
-                    )
-                  : BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey, width: 0.5)),
-              child: InkWell(
-                onTap: onTap,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  child: Row(
-                    children: [
-                      if (isEndItem)
-                        const Icon(
-                          Icons.add_circle_outline,
-                          size: 16,
-                          color: vietmapColor,
-                        ),
-                      if (isEndItem) const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          hintText,
-                          style: TextStyle(
-                            color: isEndItem ? vietmapColor : Colors.grey,
-                            fontSize: 14,
-                            fontWeight:
-                                isEndItem ? FontWeight.w500 : FontWeight.normal,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (!isEndItem) const SizedBox(width: 4),
-                      if (!isEndItem)
-                        const Icon(
-                          Icons.drag_handle_rounded,
-                          size: 15,
-                          color: Colors.grey,
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 5),
-          isEndItem
-              ? const SizedBox(width: 25)
-              : InkWell(
-                  onTap: onDelete,
-                  child: const Icon(Icons.close_rounded, color: Colors.grey),
-                ),
-        ],
-      ),
     );
   }
 }

@@ -11,7 +11,6 @@ import 'package:talker/talker.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_map/components/permission_location_widget.dart';
 import 'package:vietmap_map/extension/color_extension.dart';
-import 'package:vietmap_map/extension/latlng_extension.dart';
 import 'package:vietmap_map/extension/tilemap_extension.dart';
 import 'package:vietmap_map/features/map_screen/components/category_marker.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';

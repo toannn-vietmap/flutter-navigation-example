@@ -44,6 +44,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       RoutingEventReorderWaypoint event, Emitter<RoutingState> emit) async {
     var params = state.routingParams;
     debugPrint('old index: ${event.oldIndex}, new index: ${event.newIndex}');
+    debugPrint('waypoint count: ${params?.waypoints?.length}');
     debugPrint(
         'Before Reorder waypoints: ${params?.waypoints?.toList().toString()}');
 
@@ -60,8 +61,15 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
         return;
       }
 
-      if (adjustedNewIndex > event.oldIndex) {
-        adjustedNewIndex -= 1;
+      // Logic cho ReorderableListView:
+      // Khi kéo xuống (oldIndex < newIndex), ReorderableListView trả về newIndex + 1
+      // Khi kéo lên (oldIndex > newIndex), ReorderableListView trả về newIndex chính xác
+      if (event.oldIndex < event.newIndex) {
+        // Kéo xuống: cần trừ 1 vì ReorderableListView đã tăng thêm 1
+        adjustedNewIndex = event.newIndex - 1;
+      } else {
+        // Kéo lên: giữ nguyên newIndex
+        adjustedNewIndex = event.newIndex;
       }
 
       final item = params.waypoints!.removeAt(event.oldIndex);
@@ -208,31 +216,29 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     if (params != null) {
       var temp = params.originPoint;
       var tempDes = params.originPoint?.description;
-      var tempDesPoint = params.destinationPoint;
-      var tempDesDes = params.destinationPoint?.description;
-      params.originPoint = tempDesPoint;
-      params.originPoint?.description = tempDesDes;
+      params.originPoint = params.destinationPoint;
+      params.originPoint?.description = params.destinationPoint?.description;
       params.destinationPoint = temp;
       params.destinationPoint?.description = tempDes;
-
+      if (params.originPoint != null && params.destinationPoint != null) {
+        // add(RoutingEventGetDirection(
+        //     from: params.originPoint!, to: params.destinationPoint!));
+        params.waypoints = [
+          params.originPoint!,
+          params.destinationPoint!,
+        ];
+        if (params.navigationController != null) {
+          params.navigationController!.buildRoute(
+              waypoints: PointModel.toLatLngList(params.waypoints!) ?? [],
+              profile: params.vehicle.convertToDrivingProfile());
+        }
+      }
       emit(
         RoutingState(
             listPoint: <LatLng>[...(state.listPoint ?? [])],
             routingModel: VietMapRoutingModel.copyWith(state.routingModel),
             routingParams: params),
       );
-      if (params.originPoint != null && params.destinationPoint != null) {
-        // add(RoutingEventGetDirection(
-        //     from: params.originPoint!, to: params.destinationPoint!));
-        if (params.navigationController != null) {
-          params.navigationController!.buildRoute(waypoints: [
-            LatLng(params.originPoint!.location.latitude,
-                params.originPoint!.location.longitude),
-            LatLng(params.destinationPoint!.location.latitude,
-                params.destinationPoint!.location.longitude)
-          ], profile: params.vehicle.convertToDrivingProfile());
-        }
-      }
     }
   }
 
@@ -268,10 +274,10 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     }
     if (params.originPoint != null && params.destinationPoint != null) {
       params.waypoints = [
-        params.waypoints?.first ?? params.originPoint!,
+        params.originPoint!,
         ...params.waypoints?.sublist(1, (params.waypoints?.length ?? 2) - 1) ??
             [],
-        params.waypoints?.last ?? params.destinationPoint!,
+        params.destinationPoint!,
       ];
       params.points = PointModel.toLatLngList(params.waypoints) ?? [];
       emit(
