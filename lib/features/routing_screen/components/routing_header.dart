@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/extension/num_extension.dart';
 import 'package:vietmap_map/features/routing_screen/components/routing_header_component.dart';
 import 'package:vietmap_map/features/routing_screen/components/vehicle_button.dart';
 import 'package:vietmap_map/features/routing_screen/components/modified_header_component.dart';
@@ -50,7 +51,7 @@ class _RoutingHeaderState extends State<RoutingHeader> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 5),
-            (isModifyingWaypoints)
+            isModifyingWaypoints
                 ? const ModifiedHeaderComponent()
                 : RoutingHeaderComponent(
                     onOriginTapCallback: widget.onOriginTapCallback,
@@ -58,28 +59,37 @@ class _RoutingHeaderState extends State<RoutingHeader> {
                     onBackButtonTapCallback: widget.onBackButtonTapCallback,
                     currentLocation: widget.currentLocation,
                   ),
-            BlocBuilder<RoutingBloc, RoutingState>(builder: (_, state) {
-              return Hero(
-                tag: 'actionButton',
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.from(VehicleType.values.map((e) =>
-                        VehicleButton(
-                            estimatedTime: state
-                                        .routingModel?.paths?.first.time ==
-                                    null
-                                ? null
-                                : '${(state.routingModel!.paths!.first.time! / 60000).round()} phút',
-                            vehicleType: e,
-                            currentVehicleType:
-                                state.routingParams?.vehicle ?? VehicleType.car,
-                            onPressed: () {
-                              context.read<RoutingBloc>().add(
-                                  RoutingEventUpdateRouteParams(
-                                      vehicleType: e));
-                            })))),
-              );
-            }),
+            isModifyingWaypoints
+                ? const SizedBox.shrink()
+                : BlocBuilder<RoutingBloc, RoutingState>(
+                    buildWhen: (previous, current) {
+                    return current is RoutingStateNativeRouteBuilt;
+                  }, builder: (_, state) {
+                    return Hero(
+                      tag: 'actionButton',
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.from(VehicleType.values.map((e) =>
+                              VehicleButton(
+                                  estimatedTime: state
+                                          is RoutingStateNativeRouteBuilt
+                                      ? state.directionRoute?.duration
+                                          ?.convertSecondsToMinutes()
+                                      : state.routingModel?.paths?.first.time ==
+                                              null
+                                          ? null
+                                          : '${(state.routingModel!.paths!.first.time! / 60000).round()} phút',
+                                  vehicleType: e,
+                                  currentVehicleType:
+                                      state.routingParams?.vehicle ??
+                                          VehicleType.car,
+                                  onPressed: () {
+                                    context.read<RoutingBloc>().add(
+                                        RoutingEventUpdateRouteParams(
+                                            vehicleType: e));
+                                  })))),
+                    );
+                  }),
             const SizedBox(height: 10),
           ],
         ),

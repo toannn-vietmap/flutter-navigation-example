@@ -2,6 +2,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:vietmap_flutter_navigation/models/direction_route.dart';
+import 'package:vietmap_flutter_navigation/vietmap_flutter_navigation.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_map/domain/entities/vietmap_routing_params_impl.dart';
 
@@ -12,11 +13,13 @@ class RoutingState extends Equatable {
   final List<LatLng>? listPoint;
   final DirectionRoute? directionRoute;
   final VietMapRoutingParamsImpl? routingParams;
+  final List<NavigationMarker>? navigationMarkers;
   const RoutingState({
     this.routingParams,
     this.directionRoute,
     this.routingModel,
     this.listPoint,
+    this.navigationMarkers,
   });
 
   @override
@@ -118,7 +121,8 @@ class RoutingStateAddMoreAddress extends RoutingState {
 
 class RoutingStateSubmitModifyWaypoints extends RoutingState {
   final bool isModify;
-  RoutingStateSubmitModifyWaypoints({required RoutingState state, required this.isModify})
+  RoutingStateSubmitModifyWaypoints(
+      {required RoutingState state, required this.isModify})
       : super(
           routingParams: state.routingParams,
           routingModel: state.routingModel,

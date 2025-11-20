@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:talker/talker.dart';
+import 'package:vietmap_flutter_navigation/vietmap_flutter_navigation.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
 import 'package:vietmap_map/data/models/point_model.dart';
@@ -33,6 +34,26 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     on<RoutingEventSubmitModifyWaypoints>(_onRoutingEventSubmitModifyWaypoints);
   }
 
+  List<NavigationMarker> createMarkersFromWaypoints(
+    List<PointModel>? waypoints,
+  ) {
+    var markers = <NavigationMarker>[];
+    for (int i = 1; i < (waypoints?.length ?? 0) - 1; i++) {
+      var point = waypoints![i];
+      markers.add(
+        NavigationMarker(
+          imagePath: 'assets/images/navigation_marker.png',
+          latLng: point.location,
+          width: 30,
+          height: 30,
+          title: point.description ?? '',
+          snippet: 'Điểm dừng',
+        ),
+      );
+    }
+    return markers;
+  }
+
   _onRoutingEventSubmitModifyWaypoints(
       RoutingEventSubmitModifyWaypoints event, Emitter<RoutingState> emit) {
     debugPrint('Submit modify waypoints: ${event.isModify}');
@@ -43,10 +64,6 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
   _onRoutingEventReorderWaypoint(
       RoutingEventReorderWaypoint event, Emitter<RoutingState> emit) async {
     var params = state.routingParams;
-    debugPrint('old index: ${event.oldIndex}, new index: ${event.newIndex}');
-    debugPrint('waypoint count: ${params?.waypoints?.length}');
-    debugPrint(
-        'Before Reorder waypoints: ${params?.waypoints?.toList().toString()}');
 
     if (params != null && params.waypoints != null) {
       final waypointCount = params.waypoints!.length;
@@ -61,14 +78,9 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
         return;
       }
 
-      // Logic cho ReorderableListView:
-      // Khi kéo xuống (oldIndex < newIndex), ReorderableListView trả về newIndex + 1
-      // Khi kéo lên (oldIndex > newIndex), ReorderableListView trả về newIndex chính xác
       if (event.oldIndex < event.newIndex) {
-        // Kéo xuống: cần trừ 1 vì ReorderableListView đã tăng thêm 1
         adjustedNewIndex = event.newIndex - 1;
       } else {
-        // Kéo lên: giữ nguyên newIndex
         adjustedNewIndex = event.newIndex;
       }
 
@@ -76,8 +88,6 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       params.waypoints!.insert(adjustedNewIndex, item);
 
       params.points = PointModel.toLatLngList(params.waypoints) ?? [];
-      debugPrint(
-          'After Reorder waypoints: ${params.waypoints?.toList().toString()}');
 
       await params.navigationController?.buildRoute(
           waypoints: params.points,
@@ -103,6 +113,11 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       await params.navigationController?.buildRoute(
           waypoints: params.points,
           profile: params.vehicle.convertToDrivingProfile());
+      if (params.navigationController != null && params.points.length >= 3) {
+        params.navigationController!.removeAllMarkers();
+        var markers = createMarkersFromWaypoints(params.waypoints);
+        await params.navigationController!.addImageMarkers(markers);
+      }
       emit(
         RoutingState(
           listPoint: params.points,
@@ -132,6 +147,11 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       await params?.navigationController?.buildRoute(
           waypoints: params.points,
           profile: params.vehicle.convertToDrivingProfile());
+      if (params?.navigationController != null) {
+        params!.navigationController!.removeAllMarkers();
+        var markers = createMarkersFromWaypoints(params.waypoints);
+        await params.navigationController!.addImageMarkers(markers);
+      }
       emit(
         RoutingState(
           listPoint: params?.points,
@@ -190,6 +210,11 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       await params?.navigationController?.buildRoute(
           waypoints: params.points,
           profile: params.vehicle.convertToDrivingProfile());
+      if (params?.navigationController != null) {
+        params!.navigationController!.removeAllMarkers();
+        var markers = createMarkersFromWaypoints(params.waypoints);
+        await params.navigationController!.addImageMarkers(markers);
+      }
       emit(
         RoutingState(
           listPoint: params?.points,
@@ -287,8 +312,8 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
           routingParams: params,
         ),
       );
-      add(RoutingEventGetDirection(
-          from: params.originPoint!, to: params.destinationPoint!));
+      // add(RoutingEventGetDirection(
+      //     from: params.originPoint!, to: params.destinationPoint!));
       if (params.navigationController != null) {
         EasyLoading.show();
         Talker().debug(params.vehicle.convertToDrivingProfile());
