@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:anti_mitm/native_flutter_proxy.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,8 @@ import 'components/bottom_info.dart';
 import 'components/category_bar.dart';
 import 'components/search_bar.dart';
 import 'components/select_map_tiles_modal.dart';
+import 'package:image/image.dart' as img;
+import 'package:draw_text/draw_text.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -94,6 +97,19 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
     talker.disable();
+  }
+
+  Future<img.Image> drawTextOnImage(String text) async {
+    img.Image original = img.decodeImage(
+        await File('/assets/images/navigation_marker.png').readAsBytes())!;
+    TextStyle textStyle = const TextStyle(
+      color: Colors.black,
+      fontSize: 50.0,
+      fontFamily: 'Roboto',
+    );
+
+    var image = await draw_text(original, textStyle, text);
+    return image;
   }
 
   @override
@@ -514,8 +530,19 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                         heroTag: "recenter",
                         backgroundColor: Colors.white,
                         onPressed: () async {
-                          // await _controller?.recenter();
-                          // await _mapAutomotivePlugin.recenter();
+                          // var image = await drawTextOnImage('A');
+                          // if (!context.mounted) return;
+                          // showDialog(
+                          //     context: context,
+                          //     builder: (context) {
+                          //       return AlertDialog(
+                          //         content: SizedBox(
+                          //             width: 300,
+                          //             height: 300,
+                          //             child: Image.memory(Uint8List.fromList(
+                          //                 img.encodePng(image)))),
+                          //       );
+                          //     });
                         },
                         child: Icon(
                           Icons.center_focus_strong,

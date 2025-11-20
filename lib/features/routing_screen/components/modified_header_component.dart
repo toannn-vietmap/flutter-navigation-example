@@ -21,14 +21,14 @@ class _ModifiedHeaderComponentState extends State<ModifiedHeaderComponent> {
 
   double _calculateContainerHeight(RoutingState state) {
     final itemCount = (state.routingParams?.waypoints?.length ?? 0) + 1;
-    const double itemHeight = 40.0;
+    const double itemHeight = 30.0;
     const double verticalPadding = 5.0;
 
     // calculate total height needed
     final double neededHeight = itemCount * (itemHeight + verticalPadding);
 
     // set a maximum height to avoid overflow
-    const double maxHeight = 15.0 + (4 * (40.0 + 10.0)); // ~230
+    const double maxHeight = 150.0 + (4 * (30.0 + 10.0)); // ~230
 
     return neededHeight > maxHeight ? maxHeight : neededHeight;
   }
