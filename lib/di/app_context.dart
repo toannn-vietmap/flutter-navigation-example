@@ -24,7 +24,7 @@ class AppContext {
   }
 
   static String? getVietmapMapStyleUrl() {
-    return "https://maps.vietmap.vn/maps/styles/tm/style.json?apikey=48393b4b028c4189b9013b1722e5c09d0cb834c32e26e64b";
+    return "https://maps.vietmap.vn/maps/styles/tm/style.json?apikey=${Vietmap.getVietmapAPIKey()}";
   }
 
   static MethodChannel getMapChannel() {
