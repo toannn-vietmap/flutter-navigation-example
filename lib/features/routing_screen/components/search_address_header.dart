@@ -41,7 +41,6 @@ class _SearchAddressHeaderState extends State<SearchAddressHeader> {
       currentPosition = LatLng(value.latitude, value.longitude);
     }).catchError((error) {
       currentPosition = widget.defaultLocation;
-      debugPrint('Error getting current position: $error');
     });
     if (widget.addressText != null &&
         widget.addressText != 'Vị trí của bạn' &&

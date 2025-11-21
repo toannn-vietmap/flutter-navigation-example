@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:vietmap_map/data/models/vietmap_place_model_impl.dart';
@@ -229,7 +228,6 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     await EasyLoading.dismiss();
     response?.fold((l) => emit(MapStateGetPlaceDetailError('Error', state)),
         (r) {
-      debugPrint('Place detail: ${r.toJson()}');
       var placeModel = VietmapPlaceModelImpl.fromJson(r.toJson());
       placeModel.newLocation = event.model.dataNew;
       emit(MapStateGetPlaceDetailSuccess(

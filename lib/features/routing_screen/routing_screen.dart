@@ -13,10 +13,12 @@ import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
 import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 import 'package:vietmap_flutter_navigation/views/navigation_view.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
+import 'package:vietmap_map/components/permission_location_widget.dart';
 import 'package:vietmap_map/constants/colors.dart';
 import 'package:vietmap_map/data/models/point_model.dart';
 import 'package:vietmap_map/features/routing_screen/components/routing_header.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
+import 'package:vietmap_map/utils/location_util.dart';
 import '../../constants/events.dart';
 import '../../di/app_context.dart';
 import '../map_screen/bloc/map_bloc.dart';
@@ -35,13 +37,15 @@ class RoutingScreen extends StatefulWidget {
   State<RoutingScreen> createState() => _RoutingScreenState();
 }
 
-class _RoutingScreenState extends State<RoutingScreen> {
+class _RoutingScreenState extends State<RoutingScreen>
+    with WidgetsBindingObserver {
   final MethodChannel _navigationChannel = AppContext.getNavigationChannel();
   final VietMapAutomotivePlugin _vietmapAutomotivePlugin =
       VietMapAutomotivePlugin();
   bool isFromOrigin = true;
   final PanelController _panelController = PanelController();
   double panelPosition = 0.0;
+  bool isRequestLocationPermission = false;
 
   MapNavigationViewController? _navigationController;
   late MapOptions _navigationOption;
@@ -69,6 +73,40 @@ class _RoutingScreenState extends State<RoutingScreen> {
     _navigationOption.padding = const EdgeInsets.all(100);
 
     _vietmapPlugin.setDefaultOptions(_navigationOption);
+  }
+
+  @override
+  void dispose() {
+    _navigationController?.onDispose();
+    super.dispose();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (isRequestLocationPermission) {
+          isRequestLocationPermission = false;
+          await LocationUtil.checkLocationPermission().then((value) {
+            if (value && mounted) {
+              _navigationController?.startNavigation();
+              setState(() {
+                _isRunning = true;
+              });
+            }
+          });
+        }
+        break;
+      case AppLifecycleState.inactive:
+        break;
+      case AppLifecycleState.paused:
+        break;
+      case AppLifecycleState.detached:
+        break;
+      case AppLifecycleState.hidden:
+        break;
+    }
   }
 
   RoutingBloc get routingBloc => BlocProvider.of<RoutingBloc>(context);
@@ -264,10 +302,7 @@ class _RoutingScreenState extends State<RoutingScreen> {
                               navigationController: _navigationController));
                           Geolocator.getCurrentPosition().then((value) {
                             currentPosition = value;
-                          }).catchError((error) {
-                            debugPrint(
-                                'Error getting current position: $error');
-                          });
+                          }).catchError((error) {});
                         },
                         onRouteBuilt: (DirectionRoute p0) {
                           routingBloc.add(
@@ -358,12 +393,25 @@ class _RoutingScreenState extends State<RoutingScreen> {
                                     }
                                   },
                                   panelPosition: panelPosition,
-                                  onStartNavigation: () {
+                                  onStartNavigation: () async {
                                     // _vietMapAutomotivePlugin.startNavigation();
-                                    _navigationController?.startNavigation();
-                                    setState(() {
-                                      _isRunning = true;
-                                    });
+                                    bool hasPermission = await LocationUtil
+                                        .checkLocationPermission();
+                                    if (hasPermission) {
+                                      _navigationController?.startNavigation();
+                                      setState(() {
+                                        _isRunning = true;
+                                      });
+                                    } else {
+                                      if (!context.mounted) return;
+                                      isRequestLocationPermission = true;
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) {
+                                          return const PermissionLocationDialog();
+                                        },
+                                      );
+                                    }
                                   },
                                   routingBloc: routingBloc,
                                 ))
@@ -418,11 +466,5 @@ class _RoutingScreenState extends State<RoutingScreen> {
       routeProgressEvent = null;
       _isRunning = false;
     });
-  }
-
-  @override
-  void dispose() {
-    _navigationController?.onDispose();
-    super.dispose();
   }
 }

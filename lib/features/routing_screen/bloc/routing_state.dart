@@ -105,18 +105,18 @@ class RoutingStateNativeRouteBuilt extends RoutingState {
       [routingModel, routingParams, listPoint, directionRoute];
 }
 
-class RoutingStateAddMoreAddress extends RoutingState {
-  final List<LatLng> updatedListPoint;
-  RoutingStateAddMoreAddress(RoutingState state, this.updatedListPoint)
+class RoutingStateWaypointUpdated extends RoutingState {
+  final VietMapRoutingParamsImpl? newRoutingParams;
+  RoutingStateWaypointUpdated(RoutingState state, this.newRoutingParams)
       : super(
-          routingParams: state.routingParams,
+          routingParams: newRoutingParams,
           routingModel: state.routingModel,
-          listPoint: updatedListPoint,
+          listPoint: state.listPoint,
           directionRoute: state.directionRoute,
         );
   @override
   List<Object?> get props =>
-      [routingModel, routingParams, listPoint, directionRoute];
+      [routingModel, newRoutingParams, listPoint, directionRoute];
 }
 
 class RoutingStateSubmitModifyWaypoints extends RoutingState {

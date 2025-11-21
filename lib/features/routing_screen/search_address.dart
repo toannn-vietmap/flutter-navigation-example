@@ -21,8 +21,6 @@ class _SearchAddressState extends State<SearchAddress> {
   String? addressText = '';
   @override
   void initState() {
-    debugPrint(
-        'SearchAddress initState called: ${widget.args?.defaultLocation}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       var args = widget.args;
       if (args != null) {

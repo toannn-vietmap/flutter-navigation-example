@@ -75,7 +75,6 @@ class _SearchScreenState extends State<SearchScreen> {
       currentLocation = LatLng(value.latitude, value.longitude);
     }).catchError((error) {
       currentLocation = widget.defaultLocation;
-      debugPrint('Error getting current position: $error');
     });
     context.read<MapBloc>().add(MapEventGetHistorySearch());
   }

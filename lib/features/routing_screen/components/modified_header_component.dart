@@ -24,11 +24,9 @@ class _ModifiedHeaderComponentState extends State<ModifiedHeaderComponent> {
     const double itemHeight = 30.0;
     const double verticalPadding = 5.0;
 
-    // calculate total height needed
-    final double neededHeight = itemCount * (itemHeight + verticalPadding);
+    final double neededHeight = itemCount * (itemHeight + verticalPadding * 2);
 
-    // set a maximum height to avoid overflow
-    const double maxHeight = 150.0 + (4 * (30.0 + 10.0)); // ~230
+    const double maxHeight = 150;
 
     return neededHeight > maxHeight ? maxHeight : neededHeight;
   }
@@ -94,8 +92,11 @@ class _ModifiedHeaderComponentState extends State<ModifiedHeaderComponent> {
             ],
           ),
         ),
-        // Address list
         BlocBuilder<RoutingBloc, RoutingState>(
+          buildWhen: (previous, current) {
+            return current is RoutingStateWaypointUpdated ||
+                current is RoutingStateSubmitModifyWaypoints;
+          },
           builder: (context, state) => Container(
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -103,7 +104,9 @@ class _ModifiedHeaderComponentState extends State<ModifiedHeaderComponent> {
             height: _calculateContainerHeight(state),
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: ReorderableListView.builder(
-              itemCount: (state.routingParams?.waypoints?.length ?? 0) + 1,
+              itemCount: state is RoutingStateWaypointUpdated
+                  ? (state.newRoutingParams?.waypoints?.length ?? 0) + 1
+                  : state.routingParams!.waypoints!.length + 1,
               itemBuilder: (context, index) {
                 var waypoint =
                     index > state.routingParams!.waypoints!.length - 1

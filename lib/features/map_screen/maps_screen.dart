@@ -127,13 +127,10 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
         }
         break;
       case AppLifecycleState.inactive:
-        debugPrint('AppLifecycleState.inactive');
         break;
       case AppLifecycleState.paused:
-        debugPrint('AppLifecycleState.paused');
         break;
       case AppLifecycleState.detached:
-        debugPrint('AppLifecycleState.detached');
         break;
       case AppLifecycleState.hidden:
         var isConnectedToSensitiveProxy =
@@ -159,13 +156,11 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
           setState(() {});
         }
         if (state is MapStateChangeMapTilesSuccess) {
-          debugPrint(
-              "Change map tiles to ${state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? "")}");
           tileMap =
-              state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? "");
+              state.mapTile.getMapTiles(AppContext.getTilemapAPIKey() ?? "");
           setState(() {});
           _controller?.setStyle(
-              state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? ""));
+              state.mapTile.getMapTiles(AppContext.getTilemapAPIKey() ?? ""));
         }
         if (state is MapStateGetLocationFromCoordinateSuccess &&
             ModalRoute.of(context)?.isCurrent == true) {

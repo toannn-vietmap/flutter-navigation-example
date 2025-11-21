@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:talker/talker.dart';
-import 'package:vietmap_flutter_navigation/vietmap_flutter_navigation.dart';
 import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
 import 'package:vietmap_map/data/models/point_model.dart';
@@ -34,29 +33,8 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     on<RoutingEventSubmitModifyWaypoints>(_onRoutingEventSubmitModifyWaypoints);
   }
 
-  List<NavigationMarker> createMarkersFromWaypoints(
-    List<PointModel>? waypoints,
-  ) {
-    var markers = <NavigationMarker>[];
-    for (int i = 1; i < (waypoints?.length ?? 0) - 1; i++) {
-      var point = waypoints![i];
-      markers.add(
-        NavigationMarker(
-          imagePath: 'assets/images/navigation_marker.png',
-          latLng: point.location,
-          width: 30,
-          height: 30,
-          title: point.description ?? '',
-          snippet: 'Điểm dừng',
-        ),
-      );
-    }
-    return markers;
-  }
-
   _onRoutingEventSubmitModifyWaypoints(
       RoutingEventSubmitModifyWaypoints event, Emitter<RoutingState> emit) {
-    debugPrint('Submit modify waypoints: ${event.isModify}');
     emit(RoutingStateSubmitModifyWaypoints(
         isModify: event.isModify, state: state));
   }
@@ -66,26 +44,14 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     var params = state.routingParams;
 
     if (params != null && params.waypoints != null) {
-      final waypointCount = params.waypoints!.length;
-
-      int adjustedNewIndex = event.newIndex;
-      if (event.newIndex >= waypointCount) {
-        adjustedNewIndex = waypointCount - 1;
-      }
-
-      if (event.oldIndex >= waypointCount) {
-        debugPrint('Invalid oldIndex: ${event.oldIndex}');
-        return;
-      }
-
-      if (event.oldIndex < event.newIndex) {
-        adjustedNewIndex = event.newIndex - 1;
+      if (event.newIndex > event.oldIndex) {
+        params.waypoints!
+            .insert(event.newIndex, params.waypoints![event.oldIndex]);
+        params.waypoints!.removeAt(event.oldIndex);
       } else {
-        adjustedNewIndex = event.newIndex;
+        var item = params.waypoints!.removeAt(event.oldIndex);
+        params.waypoints!.insert(event.newIndex, item);
       }
-
-      final item = params.waypoints!.removeAt(event.oldIndex);
-      params.waypoints!.insert(adjustedNewIndex, item);
 
       params.points = PointModel.toLatLngList(params.waypoints) ?? [];
 
@@ -93,11 +59,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
           waypoints: params.points,
           profile: params.vehicle.convertToDrivingProfile());
       emit(
-        RoutingState(
-          listPoint: params.points,
-          routingModel: VietMapRoutingModel.copyWith(state.routingModel),
-          routingParams: params,
-        ),
+        RoutingStateWaypointUpdated(state, params),
       );
     }
   }
@@ -113,18 +75,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       await params.navigationController?.buildRoute(
           waypoints: params.points,
           profile: params.vehicle.convertToDrivingProfile());
-      if (params.navigationController != null && params.points.length >= 3) {
-        params.navigationController!.removeAllMarkers();
-        var markers = createMarkersFromWaypoints(params.waypoints);
-        await params.navigationController!.addImageMarkers(markers);
-      }
-      emit(
-        RoutingState(
-          listPoint: params.points,
-          routingModel: VietMapRoutingModel.copyWith(state.routingModel),
-          routingParams: params,
-        ),
-      );
+      emit(RoutingStateWaypointUpdated(state, params));
     }
   }
 
@@ -137,27 +88,15 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
           event.indexWaypoint != null) {
         params?.waypoints?[event.indexWaypoint!] = event.newPoint!;
       } else {
-        params?.waypoints = [
-          ...(params.waypoints ?? []),
-          event.newPoint!,
-        ];
+        params?.waypoints?.add(event.newPoint!);
       }
       params?.destinationPoint = event.newPoint;
       params?.points = PointModel.toLatLngList(params.waypoints) ?? [];
       await params?.navigationController?.buildRoute(
           waypoints: params.points,
           profile: params.vehicle.convertToDrivingProfile());
-      if (params?.navigationController != null) {
-        params!.navigationController!.removeAllMarkers();
-        var markers = createMarkersFromWaypoints(params.waypoints);
-        await params.navigationController!.addImageMarkers(markers);
-      }
       emit(
-        RoutingState(
-          listPoint: params?.points,
-          routingModel: VietMapRoutingModel.copyWith(state.routingModel),
-          routingParams: params,
-        ),
+        RoutingStateWaypointUpdated(state, params),
       );
     }
   }
@@ -181,11 +120,9 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
     VietmapPlaceModelImpl? placeModel;
     await EasyLoading.dismiss();
     response?.fold((l) => null, (r) {
-      debugPrint('Place detail: ${r.toJson()}');
       placeModel = VietmapPlaceModelImpl.fromJson(r.toJson());
       placeModel?.newLocation = event.newPoint!.dataNew;
     });
-    debugPrint('Place model: ${placeModel?.toJson()}');
     if (placeModel != null) {
       var newPoint = PointModel(
         description: placeModel!.getFullName(),
@@ -200,27 +137,15 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
           event.indexWaypoint != null) {
         params?.waypoints?[event.indexWaypoint!] = newPoint;
       } else {
-        params?.waypoints = [
-          ...(params.waypoints ?? []),
-          newPoint,
-        ];
+        params?.waypoints?.add(newPoint);
       }
       params?.destinationPoint = newPoint;
       params?.points = PointModel.toLatLngList(params.waypoints) ?? [];
       await params?.navigationController?.buildRoute(
           waypoints: params.points,
           profile: params.vehicle.convertToDrivingProfile());
-      if (params?.navigationController != null) {
-        params!.navigationController!.removeAllMarkers();
-        var markers = createMarkersFromWaypoints(params.waypoints);
-        await params.navigationController!.addImageMarkers(markers);
-      }
       emit(
-        RoutingState(
-          listPoint: params?.points,
-          routingModel: VietMapRoutingModel.copyWith(state.routingModel),
-          routingParams: params,
-        ),
+        RoutingStateWaypointUpdated(state, params),
       );
     }
   }
