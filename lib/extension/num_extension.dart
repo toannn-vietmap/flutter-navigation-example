@@ -35,4 +35,13 @@ extension NumExtension on num? {
       return '${(seconds / 86400).toStringAsFixed(0)} ngày, ${(seconds % 86400 / 3600).toStringAsFixed(0)} giờ, ${(seconds % 3600 / 60).toStringAsFixed(0)} phút';
     }
   }
+
+  String convertSecondsToMinutes() {
+    if (this == null) return '';
+    if (this! < 60) {
+      return '1 giây';
+    } else {
+      return '${(this! / 60).toStringAsFixed(0)} phút';
+    }
+  }
 }
