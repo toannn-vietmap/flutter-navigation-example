@@ -18,7 +18,7 @@ class CategoryMarker extends StatelessWidget {
         context.read<MapBloc>().add(MapEventShowPlaceDetail(model));
       },
       child: SizedBox(
-        height: 70,
+        height: 80,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,

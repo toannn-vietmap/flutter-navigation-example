@@ -169,7 +169,7 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -183,7 +183,7 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 SizedBox(
                   width: double.infinity,
                   child: Text(
@@ -194,22 +194,21 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(height: 10),
-                Text(state.response.address ?? '',
-                    style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
+                Text(
+                  state.response.address ?? '',
+                  style: const TextStyle(fontSize: 16),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 5),
                 Text(
                   'Mới: ${state.response.dataNew?.address ?? (state.response.address ?? '')}',
                   style: const TextStyle(fontSize: 16, color: Colors.blue),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 10),
-                // Text(
-                //   'Khoảng cách: ${state.response.distance?.toStringAsFixed(2) ?? 0} km',
-                //   style: const TextStyle(fontSize: 16),
-                //   maxLines: 2,
-                // ),
+                const SizedBox(height: 5),
                 Row(
                   children: [
                     MapActionButton(

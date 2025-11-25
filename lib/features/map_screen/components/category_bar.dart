@@ -32,7 +32,7 @@ class _CategoryBarState extends State<CategoryBar> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
-      height: 30,
+      height: 35,
       child: ListView.builder(
         itemCount: categoryPoint.length,
         itemBuilder: (context, index) => CategoryItem(

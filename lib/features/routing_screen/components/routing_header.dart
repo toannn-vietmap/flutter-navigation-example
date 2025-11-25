@@ -59,13 +59,13 @@ class _RoutingHeaderState extends State<RoutingHeader> {
                     onBackButtonTapCallback: widget.onBackButtonTapCallback,
                     currentLocation: widget.currentLocation,
                   ),
-            isModifyingWaypoints
-                ? const SizedBox.shrink()
-                : BlocBuilder<RoutingBloc, RoutingState>(
-                    buildWhen: (previous, current) {
-                    return current is RoutingStateNativeRouteBuilt;
-                  }, builder: (_, state) {
-                    return Hero(
+            BlocBuilder<RoutingBloc, RoutingState>(
+                buildWhen: (previous, current) {
+              return current is RoutingStateNativeRouteBuilt;
+            }, builder: (_, state) {
+              return isModifyingWaypoints
+                  ? const SizedBox.shrink()
+                  : Hero(
                       tag: 'actionButton',
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -89,7 +89,7 @@ class _RoutingHeaderState extends State<RoutingHeader> {
                                             vehicleType: e));
                                   })))),
                     );
-                  }),
+            }),
             const SizedBox(height: 10),
           ],
         ),

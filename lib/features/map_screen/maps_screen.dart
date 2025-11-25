@@ -157,17 +157,17 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
         }
         if (state is MapStateChangeMapTilesSuccess) {
           tileMap =
-              state.mapTile.getMapTiles(AppContext.getTilemapAPIKey() ?? "");
+              state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? "");
           setState(() {});
           _controller?.setStyle(
-              state.mapTile.getMapTiles(AppContext.getTilemapAPIKey() ?? ""));
+              state.mapTile.getMapTiles(AppContext.getVietmapAPIKey() ?? ""));
         }
         if (state is MapStateGetLocationFromCoordinateSuccess &&
             ModalRoute.of(context)?.isCurrent == true) {
           _markers = [
             Marker(
                 width: 120,
-                height: 70,
+                height: 80,
                 alignment: Alignment.bottomCenter,
                 latLng: LatLng(state.response.lat?.toDouble() ?? 0,
                     state.response.lng?.toDouble() ?? 0),
@@ -492,7 +492,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                   controller: _panelController,
                   maxHeight: context.read<MapBloc>().state
                           is MapStateGetPlaceDetailSuccess
-                      ? 170
+                      ? 180
                       : 220,
                   minHeight: 0,
                   parallaxEnabled: true,
