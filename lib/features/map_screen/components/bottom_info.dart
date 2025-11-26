@@ -70,7 +70,6 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
           return Container(
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 15),
-            padding: const EdgeInsets.only(bottom: 10),
             decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -79,6 +78,7 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 10),
                 Row(
@@ -112,7 +112,7 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const Spacer(),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     MapActionButton(
@@ -159,7 +159,6 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
           return Container(
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 15),
-            padding: const EdgeInsets.only(bottom: 10),
             decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -168,8 +167,8 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 5),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -183,7 +182,7 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
                     ),
                   ],
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
                   child: Text(
@@ -194,21 +193,21 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 10),
                 Text(
                   state.response.address ?? '',
                   style: const TextStyle(fontSize: 16),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 10),
                 Text(
                   'Mới: ${state.response.dataNew?.address ?? (state.response.address ?? '')}',
                   style: const TextStyle(fontSize: 16, color: Colors.blue),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     MapActionButton(
