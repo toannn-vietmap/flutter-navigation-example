@@ -493,7 +493,9 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                   maxHeight: context.read<MapBloc>().state
                           is MapStateGetPlaceDetailSuccess
                       ? 180
-                      : 220,
+                      : Platform.isAndroid
+                          ? 230
+                          : 200,
                   minHeight: 0,
                   parallaxEnabled: true,
                   parallaxOffset: .1,

@@ -54,6 +54,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       }
 
       params.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      params.destinationPoint = params.waypoints?.last;
 
       await params.navigationController?.buildRoute(
           waypoints: params.points,
@@ -72,6 +73,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
         params.waypoints!.length > event.index) {
       params.waypoints!.removeAt(event.index);
       params.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      params.destinationPoint = params.waypoints?.last;
       await params.navigationController?.buildRoute(
           waypoints: params.points,
           profile: params.vehicle.convertToDrivingProfile());
