@@ -134,8 +134,11 @@ class _PickAddressScreenState extends State<PickAddressScreen> {
                                   fontSize: 17, color: Colors.blue),
                             ),
                           ),
-                          const Divider(),
+                          const Divider(height: 1),
                           TextButton(
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.only(bottom: 10),
+                              ),
                               onPressed: () {
                                 if (_controller?.cameraPosition != null) {
                                   VietMapPickerData pickerData =

@@ -12,6 +12,18 @@ class MethodChannelVietmapAutomotivePlugin
   final methodChannel = const MethodChannel('vn.vietmap.automotive');
 
   @override
+  Future<bool?> snapInstruction({
+    required double longitude,
+    required double latitude,
+  }) async {
+    final resp = await methodChannel.invokeMethod<bool?>(Events.snapInstruction, {
+      'longitude': longitude,
+      'latitude': latitude,
+    });
+    return resp;
+  }
+
+  @override
   Future<num?> getDistanceToLocation({
     required LatLng location,
   }) async {

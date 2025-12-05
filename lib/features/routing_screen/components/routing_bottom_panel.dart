@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vietmap_map/extension/num_extension.dart';
+import 'package:vietmap_map/utils/instruction_utils.dart';
 
 import '../../../constants/colors.dart';
 import '../bloc/bloc.dart';
@@ -10,11 +11,15 @@ class RoutingBottomPanel extends StatelessWidget {
       required this.onStartNavigation,
       required this.onViewListStep,
       required this.panelPosition,
-      required this.routingBloc});
+      required this.routingBloc,
+      this.onClickInstruction,
+      this.onCancelViewListStep});
   final VoidCallback onStartNavigation;
   final VoidCallback onViewListStep;
   final double panelPosition;
   final RoutingBloc routingBloc;
+  final Function(double? longitude, double? latitude)? onClickInstruction;
+  final VoidCallback? onCancelViewListStep;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -142,25 +147,37 @@ class RoutingBottomPanel extends StatelessWidget {
             builder: (context, state) {
               if (state is RoutingStateNativeRouteBuilt) {
                 return ListView.builder(
-                  itemBuilder: (_, index) => ListTile(
-                    title: Text(
-                        state.directionRoute?.legs?.first.steps?[index].name ??
-                            ""),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 5),
-                        Text(state.directionRoute?.legs?.first.steps?[index]
-                                .distance
-                                ?.distanceToString() ??
-                            ''),
-                        const Divider(),
-                        const SizedBox(height: 5),
-                      ],
-                    ),
-                  ),
+                  itemBuilder: (_, index) {
+                    var step = state.directionRoute?.legs?[1].steps?[index];
+                    return ListTile(
+                      title: Text(
+                        InstructionUtils.generateInstruction(step!.maneuver!,
+                            roadName: step.name),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 5),
+                          Text(state.directionRoute?.legs?.first.steps?[index]
+                                  .distance
+                                  ?.distanceToString() ??
+                              ''),
+                          const Divider(),
+                          const SizedBox(height: 5),
+                        ],
+                      ),
+                      onTap: () {
+                        var location = state.directionRoute?.legs?.first
+                            .steps?[index].maneuver?.location;
+                        if (onClickInstruction != null) {
+                          onClickInstruction!(location?.first.toDouble(),
+                              location?.last.toDouble());
+                        }
+                      },
+                    );
+                  },
                   itemCount:
-                      state.directionRoute?.legs?.first.steps?.length ?? 0,
+                      state.directionRoute?.legs?[1].steps?.length ?? 0,
                 );
               }
               return const SizedBox.shrink();

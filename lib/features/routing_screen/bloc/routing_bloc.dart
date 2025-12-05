@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
@@ -54,6 +53,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       }
 
       params.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      params.originPoint = params.waypoints?.first;
       params.destinationPoint = params.waypoints?.last;
 
       await params.navigationController?.buildRoute(
@@ -73,6 +73,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
         params.waypoints!.length > event.index) {
       params.waypoints!.removeAt(event.index);
       params.points = PointModel.toLatLngList(params.waypoints) ?? [];
+      params.originPoint = params.waypoints?.first;
       params.destinationPoint = params.waypoints?.last;
       await params.navigationController?.buildRoute(
           waypoints: params.points,
@@ -92,6 +93,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       } else {
         params?.waypoints?.add(event.newPoint!);
       }
+      params?.originPoint = params.waypoints?.first;
       params?.destinationPoint = event.newPoint;
       params?.points = PointModel.toLatLngList(params.waypoints) ?? [];
       await params?.navigationController?.buildRoute(
@@ -141,6 +143,7 @@ class RoutingBloc extends Bloc<RoutingEvent, RoutingState> {
       } else {
         params?.waypoints?.add(newPoint);
       }
+      params?.originPoint = params.waypoints?.first;
       params?.destinationPoint = newPoint;
       params?.points = PointModel.toLatLngList(params.waypoints) ?? [];
       await params?.navigationController?.buildRoute(

@@ -5,12 +5,12 @@ import '../bloc/bloc.dart';
 import 'tile_option_item.dart';
 
 enum MapTiles {
-  vietmapVector('VM lm'),
-  vietmapDarkMap('VM dm'),
-  vietmapTileMap('VM tm'),
-  vietmapRasterLM('VM RS LM'),
-  vietmapRasterDM('VM RS DM'),
-  vietmapRasterTile('VM RS TM');
+  vietmapVector('Vector Default'),
+  vietmapDarkMap('Vector Dark'),
+  vietmapTileMap('Vector Light'),
+  vietmapRasterLM('Raster Light'),
+  vietmapRasterDM('Raster Dark'),
+  vietmapRasterTile('Raster Default');
 
   final String value;
   const MapTiles(this.value);

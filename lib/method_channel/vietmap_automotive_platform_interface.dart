@@ -19,6 +19,13 @@ abstract class VietmapAutomotivePlatformInterface extends PlatformInterface {
     _instance = instance;
   }
 
+  Future<bool?> snapInstruction({
+    required double longitude,
+    required double latitude,
+  }) {
+    throw UnimplementedError('snapInstruction() has not been implemented.');
+  }
+
   Future<num?> getDistanceToLocation({
     required LatLng location,
   }) {

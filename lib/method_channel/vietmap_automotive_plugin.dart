@@ -9,6 +9,13 @@ class VietMapAutomotivePlugin {
   /// get current instance of this class
   static VietMapAutomotivePlugin get instance => _instance;
 
+  Future<bool?> snapInstruction(
+      {required double longitude, required double latitude}) async {
+    final resp = await VietmapAutomotivePlatformInterface.instance
+        .snapInstruction(longitude: longitude, latitude: latitude);
+    return resp;
+  }
+
   Future<num?> getDistanceToLocation({
     required LatLng location,
   }) async {

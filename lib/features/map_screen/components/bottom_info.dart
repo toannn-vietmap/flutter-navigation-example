@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vietmap_map/components/map_action_button.dart';
 import 'package:vietmap_map/components/permission_location_widget.dart';
 import 'package:vietmap_map/features/map_screen/bloc/map_bloc.dart';
-import 'package:vietmap_map/utils/location_util.dart';
+import 'package:vietmap_map/utils/location_utils.dart';
 
 import '../../../constants/colors.dart';
 import '../../../constants/route.dart';
@@ -49,7 +49,7 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed && _isWaitingPermission) {
-      final hasPermission = await LocationUtil.checkLocationPermission();
+      final hasPermission = await LocationUtils.checkLocationPermission();
       if (hasPermission && _locationResponse != null && context.mounted) {
         _navigateToRouting(
             _locationResponse, _actionCallback!, _isStartNavigation);
@@ -268,7 +268,7 @@ class _BottomSheetInfo extends State<BottomSheetInfo>
     VoidCallback onCreateRouteCallback,
     bool isNavigation,
   ) async {
-    final hasPermission = await LocationUtil.checkLocationPermission();
+    final hasPermission = await LocationUtils.checkLocationPermission();
 
     if (!context.mounted) return;
 

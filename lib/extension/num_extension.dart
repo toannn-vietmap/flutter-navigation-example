@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 extension NumExtension on num? {
   String distanceToString() {
     if (this == null) return '';
@@ -58,7 +56,7 @@ extension NumExtension on num? {
     if (this! < 60) {
       return '${this!.round()} giây';
     }
-    
+
     var duration = Duration(seconds: this!.round());
     return '${duration.inMinutes} phút';
   }

@@ -15,7 +15,7 @@ import 'package:vietmap_map/extension/color_extension.dart';
 import 'package:vietmap_map/extension/tilemap_extension.dart';
 import 'package:vietmap_map/features/map_screen/components/category_marker.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
-import 'package:vietmap_map/utils/location_util.dart';
+import 'package:vietmap_map/utils/location_utils.dart';
 import '../../constants/colors.dart';
 import '../../constants/events.dart';
 import '../../constants/route.dart';
@@ -119,7 +119,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         if (isRequestLocationPermission) {
           isRequestLocationPermission = false;
-          await LocationUtil.checkLocationPermission().then((value) {
+          await LocationUtils.checkLocationPermission().then((value) {
             if (value && mounted) {
               context.pushNamed(Routes.routingScreen);
             }
@@ -219,7 +219,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
           _showPanel();
         }
         if (state is MapStateGetDirectionSuccess) {
-          _controller?.clearLines();
+          _controller?.clearPolylines();
           _controller?.addPolyline(PolylineOptions(
             geometry: state.listPoint,
             polylineWidth: 4,
@@ -551,7 +551,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                         heroTag: "myLocation",
                         backgroundColor: Colors.white,
                         onPressed: () async {
-                          await LocationUtil.checkLocationPermission()
+                          await LocationUtils.checkLocationPermission()
                               .then((value) {
                             if (!value && context.mounted) {
                               showDialog(
@@ -596,7 +596,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                         onPressed: () async {
                           if (!context.mounted) return;
                           bool hasPermission =
-                              await LocationUtil.checkLocationPermission();
+                              await LocationUtils.checkLocationPermission();
                           if (hasPermission) {
                             context.pushNamed(Routes.routingScreen);
                           } else {

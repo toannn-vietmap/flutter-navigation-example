@@ -18,7 +18,7 @@ import 'package:vietmap_map/constants/colors.dart';
 import 'package:vietmap_map/data/models/point_model.dart';
 import 'package:vietmap_map/features/routing_screen/components/routing_header.dart';
 import 'package:vietmap_map/method_channel/vietmap_automotive_plugin.dart';
-import 'package:vietmap_map/utils/location_util.dart';
+import 'package:vietmap_map/utils/location_utils.dart';
 import '../../constants/events.dart';
 import '../../di/app_context.dart';
 import '../map_screen/bloc/map_bloc.dart';
@@ -88,7 +88,7 @@ class _RoutingScreenState extends State<RoutingScreen>
       case AppLifecycleState.resumed:
         if (isRequestLocationPermission) {
           isRequestLocationPermission = false;
-          await LocationUtil.checkLocationPermission().then((value) {
+          await LocationUtils.checkLocationPermission().then((value) {
             if (value && mounted) {
               _navigationController?.startNavigation();
               setState(() {
@@ -375,7 +375,7 @@ class _RoutingScreenState extends State<RoutingScreen>
                             parallaxEnabled: true,
                             parallaxOffset: .6,
                             controller: _panelController,
-                            minHeight: MediaQuery.of(context).size.height * 0.2,
+                            minHeight: MediaQuery.of(context).size.height * 0.3,
                             maxHeight: MediaQuery.of(context).size.height * 0.7,
                             onPanelSlide: (position) {
                               setState(() {
@@ -395,7 +395,7 @@ class _RoutingScreenState extends State<RoutingScreen>
                                   panelPosition: panelPosition,
                                   onStartNavigation: () async {
                                     // _vietMapAutomotivePlugin.startNavigation();
-                                    bool hasPermission = await LocationUtil
+                                    bool hasPermission = await LocationUtils
                                         .checkLocationPermission();
                                     if (hasPermission) {
                                       _navigationController?.startNavigation();
@@ -414,6 +414,11 @@ class _RoutingScreenState extends State<RoutingScreen>
                                     }
                                   },
                                   routingBloc: routingBloc,
+                                  onClickInstruction: (longitude, latitude) {
+                                    _navigationController?.clickInstruction(
+                                        LatLng(
+                                            latitude ?? 0.0, longitude ?? 0.0));
+                                  },
                                 ))
                   ],
                 ),

@@ -28,7 +28,7 @@ dependencies:
   equatable: ^2.0.5 
   vietmap_flutter_gl: ^4.1.0
   vietmap_gl_platform_interface: 1.0.0 
-  vietmap_flutter_navigation: ^4.1.0-pre.6
+  vietmap_flutter_navigation: ^4.1.1-pre.6
   talker: ^3.1.4 
   flutter_dotenv: ^5.1.0
   anti_mitm: ^0.1.0
@@ -63,6 +63,7 @@ flutter:
     - shorebird.yaml
     - assets/images/vm_demo.png
     - assets/tiles/
+    - .env
     
 # flutter pub run build_runner build 
 

@@ -16,4 +16,5 @@ class Events {
   static const String onRecenter = 'recenter';
   static const String onOverview = 'overview';
   static const String onFinishNavigation = 'finishNavigation';
+  static const String snapInstruction = 'snapInstruction';
 }
